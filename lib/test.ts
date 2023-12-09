@@ -18,6 +18,8 @@ async function mock_task (task: Task, add: number): Promise<void> {
   task.color = chalk.green;
 }
 
+const tasks: Promise<void>[] = [];
+
 for (let i = 0; i < 10; i++) {
   const lv = new TaskListHorizontal;
   lv.display_percentage = true;
@@ -26,9 +28,22 @@ for (let i = 0; i < 10; i++) {
   for (let j = 0; j < 10; j++) {
     const task = new Task;
     lv.tasks.push (task);
-    mock_task (task, i);
+    tasks.push (mock_task (task, i));
   }
   list.tasks.push (lv);
 }
 
-list.update ();
+async function main () {
+  console.log ('start line 1');
+  console.log ('start line 2');
+
+  list.update ();
+
+  // await Promise.all (tasks);
+  await list.await_end ();
+
+  console.log ('end line 1');
+  console.log ('end line 2');
+}
+
+main ();

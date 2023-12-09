@@ -3,6 +3,7 @@ import { ITask } from './Task';
 export class TaskListVertical {
   public tasks: ITask[] = [];
   private interval: NodeJS.Timeout | null = null;
+  private space_used = 0;
 
   public update () {
     let completed = 0;
@@ -12,10 +13,15 @@ export class TaskListVertical {
       completed++;
     }
 
-    process.stderr.write (`\u001b[${this.tasks.length - completed}A`);
+    const move_up = Math.min (this.space_used, this.tasks.length - completed);
+    if (move_up > 0)
+      process.stderr.write (`\u001b[${move_up}A`);
+
+    this.space_used = completed;
     for (let i = completed; i < this.tasks.length; i++) {
       this.tasks[i].present ();
       process.stderr.write ('\u001b[K\n');
+      this.space_used++;
     }
 
     if (this.tasks.length === completed && this.interval !== null) {
@@ -25,5 +31,11 @@ export class TaskListVertical {
     else if (this.interval === null) {
       this.interval = setInterval (() => this.update (), 100);
     }
+  }
+
+  public async await_end (): Promise<void> {
+    while (this.interval !== null)
+      // eslint-disable-next-line no-await-in-loop
+      await new Promise ((resolve) => setTimeout (resolve, 100));
   }
 }

@@ -52,6 +52,8 @@ for (let i = 0; i < 10; i++) {
 // call update once to render the task list
 // the display will automatically stop, once all tasks are completed
 list.update ();
+
+await list.await_end (); // await the completion of all tasks
 ```
 
 ## License
