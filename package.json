@@ -2,7 +2,10 @@
   "name": "@sapphirecode/tasks",
   "version": "1.0.0",
   "main": "dist/index.js",
-  "author": "Timo Hocker",
+  "author": {
+    "name": "Timo Hocker",
+    "email": "timo@scode.ovh"
+  },
   "license": "MIT",
   "scripts": {
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.vue,.mjs",
@@ -20,7 +23,17 @@
   "dependencies": {
     "chalk": "4"
   },
-  "repository": "git@git.scode.ovh:timo/tasks",
+  "repository": {
+    "type": "git",
+    "url": "https://git.scode.ovh/timo/tasks.git"
+  },
+  "bugs": "https://git.scode.ovh/timo/tasks",
+  "description": "Progress displays for large amounts of tasks",
+  "keywords": [
+    "progress",
+    "tasks",
+    "sapphirecode"
+  ],
   "files": [
     "LICENSE",
     "/dist/"
