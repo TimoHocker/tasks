@@ -5,13 +5,24 @@
   "author": "Timo Hocker",
   "license": "MIT",
   "scripts": {
-    "compile": "tsc"
+    "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.vue,.mjs",
+    "test": "echo \"no test\"",
+    "compile": "tsc",
+    "pretest": "tsc",
+    "posttest": "tsc --build --clean"
   },
   "devDependencies": {
+    "@sapphirecode/eslint-config-ts": "^1.2.2",
     "@types/node": "^20.10.4",
+    "eslint": "^8.55.0",
     "typescript": "^5.3.3"
   },
   "dependencies": {
     "chalk": "4"
-  }
+  },
+  "repository": "git@git.scode.ovh:timo/tasks",
+  "files": [
+    "LICENSE",
+    "/dist/"
+  ]
 }
