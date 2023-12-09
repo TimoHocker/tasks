@@ -1,4 +1,4 @@
-import { ITask } from "./Task";
+import {ITask} from './Task';
 import process from 'process';
 
 export class TaskListVertical {
@@ -6,16 +6,15 @@ export class TaskListVertical {
   private interval: NodeJS.Timeout | null = null;
 
   public update() {
-    this.tasks.sort((a, b) => a.progress - b.progress);
     process.stderr.write('\u001b[' + this.tasks.length + 'A');
-    for (let i = this.tasks.length - 1; i >= 0; i--) {
-      const task = this.tasks[i];
-      if (task.completed)
-        this.tasks.splice(i, 1);
-      
+    for (const task of this.tasks) {
       task.present();
       process.stderr.write('\u001b[K\n');
     }
+
+    while (this.tasks.length > 0 && this.tasks[0].present_completed)
+      this.tasks.shift();
+
     if (this.tasks.length === 0 && this.interval !== null) {
       clearInterval(this.interval);
       this.interval = null;
