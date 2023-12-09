@@ -23,10 +23,14 @@ export class TaskListHorizontal implements ITask {
   public present_completed = false;
 
   public get completed () {
-    return this.tasks.filter ((v) => !v.completed).length === 0;
+    return this.tasks.length > 0
+      && this.tasks.filter ((v) => !v.completed).length === 0;
   }
 
   public get progress () {
+    if (this.tasks.length === 0)
+      return 0;
+
     return (
       this.tasks.reduce ((acc, task) => acc + task.progress, 0)
       / this.tasks.length
@@ -47,6 +51,8 @@ export class TaskListHorizontal implements ITask {
       this.present_completed = true;
       return;
     }
+
+    this.present_completed = false;
     if (this.display_spinner) {
       process.stderr.write (
         `${chalk.cyan (this.spinner_form[this.spinner_index])} `
