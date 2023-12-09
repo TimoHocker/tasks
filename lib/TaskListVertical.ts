@@ -5,16 +5,20 @@ export class TaskListVertical {
   private interval: NodeJS.Timeout | null = null;
 
   public update () {
-    process.stderr.write (`\u001b[${this.tasks.length}A`);
+    let completed = 0;
     for (const task of this.tasks) {
-      task.present ();
+      if (!task.present_completed)
+        break;
+      completed++;
+    }
+
+    process.stderr.write (`\u001b[${this.tasks.length - completed}A`);
+    for (let i = completed; i < this.tasks.length; i++) {
+      this.tasks[i].present ();
       process.stderr.write ('\u001b[K\n');
     }
 
-    while (this.tasks.length > 0 && this.tasks[0].present_completed)
-      this.tasks.shift ();
-
-    if (this.tasks.length === 0 && this.interval !== null) {
+    if (this.tasks.length === completed && this.interval !== null) {
       clearInterval (this.interval);
       this.interval = null;
     }
