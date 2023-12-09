@@ -1,0 +1,17 @@
+{
+  "name": "@sapphirecode/tasks",
+  "version": "1.0.0",
+  "main": "dist/index.js",
+  "author": "Timo Hocker",
+  "license": "MIT",
+  "scripts": {
+    "compile": "tsc"
+  },
+  "devDependencies": {
+    "@types/node": "^20.10.4",
+    "typescript": "^5.3.3"
+  },
+  "dependencies": {
+    "chalk": "4"
+  }
+}
