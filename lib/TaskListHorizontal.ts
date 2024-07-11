@@ -1,24 +1,14 @@
 import chalk from 'chalk';
 import { ITask } from './Task';
+import { Spinner } from './Spinner';
+import { LabelledTask } from './LabelledTask';
 
-export class TaskListHorizontal implements ITask {
+export class TaskListHorizontal extends LabelledTask implements ITask {
   public tasks: ITask[] = [];
-  public label = '';
-  public label_length = 0;
   public display_percentage = true;
   public display_spinner = true;
 
-  private spinner_index = 0;
-  private spinner_form = [
-    '⣾',
-    '⣽',
-    '⣻',
-    '⢿',
-    '⡿',
-    '⣟',
-    '⣯',
-    '⣷'
-  ];
+  private spinner = new Spinner;
 
   public present_completed = false;
 
@@ -37,31 +27,20 @@ export class TaskListHorizontal implements ITask {
     );
   }
 
-  private get cut_label () {
-    if (this.label_length === 0)
-      return this.label;
-    if (this.label.length >= this.label_length)
-      return this.label.substr (0, this.label_length);
-    return this.label.padEnd (this.label_length, ' ');
-  }
-
   public present () {
     if (this.completed) {
-      process.stderr.write (chalk.green ('✓ ') + this.label);
+      process.stderr.write (chalk.green ('✓ '));
+      this.present_label (true);
       this.present_completed = true;
       return;
     }
 
     this.present_completed = false;
     if (this.display_spinner) {
-      process.stderr.write (
-        `${chalk.cyan (this.spinner_form[this.spinner_index])} `
-      );
-      this.spinner_index = (this.spinner_index + 1) % this.spinner_form.length;
+      this.spinner.present ();
     }
 
-    if (this.label.length > 0)
-      process.stderr.write (`${this.cut_label} `);
+    this.present_label ();
     for (const task of this.tasks)
       task.present ();
     if (this.display_percentage)

@@ -27,9 +27,11 @@ export class TaskListVertical {
     if (this.tasks.length === completed && this.interval !== null) {
       clearInterval (this.interval);
       this.interval = null;
+      process.stderr.write ('\x1b[?25l');
     }
     else if (this.interval === null) {
       this.interval = setInterval (() => this.update (), 100);
+      process.stderr.write ('\x1b[?25h');
     }
   }
 

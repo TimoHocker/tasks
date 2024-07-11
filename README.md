@@ -1,6 +1,6 @@
 # @sapphirecode/tasks
 
-version: 1.0.0
+version: 1.1.0
 
 Progress displays for large amounts of tasks
 
@@ -48,6 +48,13 @@ for (let i = 0; i < 10; i++) {
   }
   list.tasks.push (lv);
 }
+
+// horizontal tasks can be used for single tasks with label and progress bar
+const hz_task = new TaskHorizontal;
+hz_task.label = "Single Task";
+hz_task.label_length = 12;
+list.tasks.push (hz_task);
+mock_task (hz_task);
 
 // call update once to render the task list
 // the display will automatically stop, once all tasks are completed

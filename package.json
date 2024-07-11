@@ -1,6 +1,6 @@
 {
   "name": "@sapphirecode/tasks",
-  "version": "1.0.3",
+  "version": "1.1.0",
   "main": "dist/index.js",
   "author": {
     "name": "Timo Hocker",
@@ -9,7 +9,7 @@
   "license": "MIT",
   "scripts": {
     "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.vue,.mjs",
-    "test": "echo \"no test\"",
+    "test": "node dist/test.js",
     "compile": "tsc",
     "pretest": "tsc",
     "posttest": "tsc --build --clean"
