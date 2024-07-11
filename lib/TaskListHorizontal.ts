@@ -1,5 +1,4 @@
-import chalk from 'chalk';
-import { ITask } from './Task';
+import { ITask, TaskState } from './Task';
 import { Spinner } from './Spinner';
 import { LabelledTask } from './LabelledTask';
 
@@ -8,13 +7,31 @@ export class TaskListHorizontal extends LabelledTask implements ITask {
   public display_percentage = true;
   public display_spinner = true;
 
-  private spinner = new Spinner;
+  private spinner = (new Spinner);
 
   public present_completed = false;
 
   public get completed () {
-    return this.tasks.length > 0
-      && this.tasks.filter ((v) => !v.completed).length === 0;
+    return (
+      this.tasks.length > 0
+      && this.tasks.filter ((v) => !v.completed).length === 0
+    );
+  }
+
+  public get state (): TaskState {
+    let skipped = true;
+    for (const task of this.tasks) {
+      if (task.state !== 'skipped')
+        skipped = false;
+      if (task.state === 'failed')
+        return 'failed';
+    }
+    if (this.completed) {
+      if (skipped)
+        return 'skipped';
+      return 'successful';
+    }
+    return 'running';
   }
 
   public get progress () {
@@ -29,7 +46,7 @@ export class TaskListHorizontal extends LabelledTask implements ITask {
 
   public present () {
     if (this.completed) {
-      process.stderr.write (chalk.green ('✓ '));
+      this.spinner.present (this.state);
       this.present_label (true);
       this.present_completed = true;
       return;
@@ -37,8 +54,7 @@ export class TaskListHorizontal extends LabelledTask implements ITask {
 
     this.present_completed = false;
     if (this.display_spinner)
-      this.spinner.present ();
-
+      this.spinner.present (this.state);
 
     this.present_label ();
     for (const task of this.tasks)

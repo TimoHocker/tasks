@@ -31,6 +31,12 @@ async function mock_task (
     // eslint-disable-next-line no-await-in-loop
     await new Promise ((resolve) => setTimeout (resolve, 1000));
   }
+  if (Math.random () > 0.8)
+    task.state = 'failed';
+
+  if (Math.random () > 0.8)
+    task.state = 'skipped';
+
   task.completed = true;
   task.color = chalk.green;
 }

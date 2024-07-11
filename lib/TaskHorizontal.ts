@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { ITask } from './Task';
+import { ITask, TaskState } from './Task';
 import { LabelledTask } from './LabelledTask';
 import { Spinner } from './Spinner';
 
@@ -10,6 +10,7 @@ export class TaskHorizontal extends LabelledTask implements ITask {
   public length = 10;
   public display_percentage = true;
   public display_spinner = true;
+  public state: TaskState = 'running';
 
   private spinner = (new Spinner);
 
@@ -22,7 +23,9 @@ export class TaskHorizontal extends LabelledTask implements ITask {
 
   public present () {
     if (this.completed) {
-      process.stderr.write (chalk.green ('✓ '));
+      if (this.state === 'running')
+        this.state = 'successful';
+      this.spinner.present (this.state);
       this.present_label (true);
       this.present_completed = true;
       return;
@@ -31,8 +34,7 @@ export class TaskHorizontal extends LabelledTask implements ITask {
     const progress = this.length * this.progress;
 
     if (this.display_spinner)
-      this.spinner.present ();
-
+      this.spinner.present (this.state);
 
     this.present_label ();
 
