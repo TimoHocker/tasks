@@ -16,7 +16,8 @@ async function mock_task (
     if (i > duration / 10) {
       task.state = 'running';
       task.progress = i / duration;
-    } else {
+    }
+    else {
       task.state = 'paused';
     }
     if (task.progress > 0.8)

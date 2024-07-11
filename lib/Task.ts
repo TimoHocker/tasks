@@ -1,6 +1,7 @@
 import chalk from 'chalk';
 
-export type TaskState = 'failed' | 'running' | 'skipped' | 'successful' | 'paused';
+export type TaskState = 'failed' | 'paused' | 'running'
+| 'skipped' | 'successful';
 
 export interface ITask {
   completed: boolean;
