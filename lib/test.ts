@@ -20,7 +20,8 @@ async function mock_task (
       if (add > 0) {
         list.log ({
           label:         `task ${add}`,
-          message:       `Progress Log: ${Math.round (task.progress * 100)}%`,
+          message:       `Progress Log: ${Math.round (task.progress * 100)}%
+  newline asd`,
           label_color:   chalk.blue,
           message_color: chalk.red
         });

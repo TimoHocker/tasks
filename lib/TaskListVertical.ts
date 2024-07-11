@@ -58,7 +58,13 @@ export class TaskListVertical {
     if (typeof settings === 'string')
       settings = { message: settings };
 
-    this.log_entries.push (new LogEntry (settings));
+    const lines = settings.message.split ('\n');
+
+    this.log_entries.push (
+      ...lines.map ((msg) => new LogEntry (
+        { ...settings as object, message: msg }
+      ))
+    );
   }
 
   public update () {
