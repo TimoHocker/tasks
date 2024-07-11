@@ -1,7 +1,7 @@
 import chalk from 'chalk';
-import {ITask} from './Task';
-import {LabelledTask} from './LabelledTask';
-import {Spinner} from './Spinner';
+import { ITask } from './Task';
+import { LabelledTask } from './LabelledTask';
+import { Spinner } from './Spinner';
 
 export class TaskHorizontal extends LabelledTask implements ITask {
   public progress = 0;
@@ -11,12 +11,16 @@ export class TaskHorizontal extends LabelledTask implements ITask {
   public display_percentage = true;
   public display_spinner = true;
 
-  private spinner = new Spinner();
+  private spinner = (new Spinner);
 
   public color = chalk.white;
-  public form = ['⠀', '⡇', '⣿'];
+  public form = [
+    '⠀',
+    '⡇',
+    '⣿'
+  ];
 
-  public present() {
+  public present () {
     if (this.completed) {
       process.stderr.write (chalk.green ('✓ '));
       this.present_label (true);
@@ -26,28 +30,28 @@ export class TaskHorizontal extends LabelledTask implements ITask {
 
     const progress = this.length * this.progress;
 
-    if (this.display_spinner) {
-      this.spinner.present();
-    }
+    if (this.display_spinner)
+      this.spinner.present ();
 
-    this.present_label();
 
-    process.stderr.write('[');
-    for (let index = 0; index < Math.floor(progress); index++) {
-      process.stderr.write(this.color(this.form[this.form.length - 1]));
-    }
+    this.present_label ();
+
+    process.stderr.write ('[');
+    for (let index = 0; index < Math.floor (progress); index++)
+      process.stderr.write (this.color (this.form[this.form.length - 1]));
+
     if (this.progress < 1) {
-      const last_form = Math.floor(
-        this.form.length * (progress - Math.floor(progress))
+      const last_form = Math.floor (
+        this.form.length * (progress - Math.floor (progress))
       );
-      process.stderr.write(this.color(this.form[last_form]));
+      process.stderr.write (this.color (this.form[last_form]));
     }
-    for (let index = Math.ceil(progress); index < this.length; index++) {
-      process.stderr.write(' ');
-    }
-    process.stderr.write(']');
+    for (let index = Math.ceil (progress); index < this.length; index++)
+      process.stderr.write (' ');
+
+    process.stderr.write (']');
 
     if (this.display_percentage)
-      process.stderr.write(` ${Math.round(this.progress * 100)}%`);
+      process.stderr.write (` ${Math.round (this.progress * 100)}%`);
   }
 }

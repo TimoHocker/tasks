@@ -36,9 +36,9 @@ export class TaskListHorizontal extends LabelledTask implements ITask {
     }
 
     this.present_completed = false;
-    if (this.display_spinner) {
+    if (this.display_spinner)
       this.spinner.present ();
-    }
+
 
     this.present_label ();
     for (const task of this.tasks)
