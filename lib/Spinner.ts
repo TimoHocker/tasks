@@ -30,6 +30,10 @@ export class Spinner {
   }
 
   private present_skipped () {
+    process.stderr.write (chalk.yellow ('⦿ '));
+  }
+
+  private present_paused () {
     process.stderr.write (chalk.gray ('⦿ '));
   }
 
@@ -43,6 +47,9 @@ export class Spinner {
         break;
       case 'skipped':
         this.present_skipped ();
+        break;
+      case 'paused':
+        this.present_paused ();
         break;
       default:
         this.present_running ();

@@ -13,7 +13,12 @@ async function mock_task (
 ): Promise<void> {
   const duration = (Math.random () * 2) + 2 + add;
   for (let i = 0; i < duration; i++) {
-    task.progress = i / duration;
+    if (i > duration / 10) {
+      task.state = 'running';
+      task.progress = i / duration;
+    } else {
+      task.state = 'paused';
+    }
     if (task.progress > 0.8)
       task.color = chalk.blue;
     if (add % 3 === 0) {

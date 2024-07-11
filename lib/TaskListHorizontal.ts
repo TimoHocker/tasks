@@ -20,9 +20,12 @@ export class TaskListHorizontal extends LabelledTask implements ITask {
 
   public get state (): TaskState {
     let skipped = true;
+    let paused = true;
     for (const task of this.tasks) {
       if (task.state !== 'skipped')
         skipped = false;
+      if (task.state !== 'paused')
+        paused = false;
       if (task.state === 'failed')
         return 'failed';
     }
@@ -31,6 +34,8 @@ export class TaskListHorizontal extends LabelledTask implements ITask {
         return 'skipped';
       return 'successful';
     }
+    if (paused)
+      return 'paused';
     return 'running';
   }
 
