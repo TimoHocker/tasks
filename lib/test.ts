@@ -6,12 +6,24 @@ import { TaskHorizontal } from './TaskHorizontal';
 
 const list_vertical = (new TaskListVertical);
 
-async function mock_task (task: Task, add: number): Promise<void> {
+async function mock_task (
+  task: Task,
+  list: TaskListVertical,
+  add: number
+): Promise<void> {
   const duration = (Math.random () * 2) + 2 + add;
   for (let i = 0; i < duration; i++) {
     task.progress = i / duration;
     if (task.progress > 0.8)
       task.color = chalk.blue;
+    if (add % 3 === 0) {
+      list.log ({
+        label:         `task ${add}`,
+        message:       `Progress Log: ${Math.round (task.progress * 100)}%`,
+        label_color:   chalk.blue,
+        message_color: chalk.red
+      });
+    }
     // eslint-disable-next-line no-await-in-loop
     await new Promise ((resolve) => setTimeout (resolve, 1000));
   }
@@ -29,7 +41,7 @@ for (let i = 0; i < 5; i++) {
   for (let j = 0; j < 10; j++) {
     const task = (new Task);
     lh.tasks.push (task);
-    tasks.push (mock_task (task, i));
+    tasks.push (mock_task (task, list_vertical, i));
   }
   list_vertical.tasks.push (lh);
 }
@@ -39,7 +51,7 @@ for (let i = 0; i < 5; i++) {
   task.label = `Task ${i + 5}`;
   task.label_length = 10;
   task.length = 5 + (i * 3);
-  tasks.push (mock_task (task, i));
+  tasks.push (mock_task (task, list_vertical, i));
   list_vertical.tasks.push (task);
 }
 

@@ -21,13 +21,20 @@ yarn:
 const list = new TaskListVertical;
 
 // Have some asychronous task, that can send progress updates
-async function mock_task (task: Task): Promise<void> {
+async function mock_task (task: Task, list: TaskListVertical): Promise<void> {
   const duration = (Math.random () * 10) + 2;
   for (let i = 0; i < duration; i++) {
     // set the task progress between 0.0 and 1.0
     task.progress = i / duration;
     if (task.progress > 0.8)
       task.color = chalk.blue; // change the color of the task at any time
+
+    list.log({ // Log any messages without affecting the progress display
+      label: 'task log output',
+      message: `Progress Log: ${Math.round(task.progress * 100)}%`,
+      label_color: chalk.blue,
+      message_color: chalk.red,
+    });
 
     await new Promise ((resolve) => setTimeout (resolve, 1000));
   }
@@ -44,7 +51,7 @@ for (let i = 0; i < 10; i++) {
   for (let j = 0; j < 10; j++) {
     const task = new Task;
     lv.tasks.push (task);
-    mock_task (task);
+    mock_task (task, list);
   }
   list.tasks.push (lv);
 }
@@ -54,7 +61,7 @@ const hz_task = new TaskHorizontal;
 hz_task.label = "Single Task";
 hz_task.label_length = 12;
 list.tasks.push (hz_task);
-mock_task (hz_task);
+mock_task (hz_task, list);
 
 // call update once to render the task list
 // the display will automatically stop, once all tasks are completed
