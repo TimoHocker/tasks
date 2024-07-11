@@ -1,11 +1,35 @@
-import { Chalk } from 'chalk';
+/* eslint-disable max-classes-per-file */
+import chalk, { Chalk } from 'chalk';
 import { ITask } from './Task';
 
-interface LogEntry {
+interface LogEntrySettings {
   message: string;
-  message_color: Chalk;
-  label: string;
-  label_color: Chalk;
+  message_color?: Chalk;
+  label?: string;
+  label_color?: Chalk;
+}
+
+class LogEntry {
+  public message: string;
+  public message_color: Chalk;
+  public label: string;
+  public label_color: Chalk;
+
+  constructor (settings: LogEntrySettings) {
+    this.message = settings.message;
+    this.message_color = settings.message_color || chalk.white;
+    this.label = settings.label || '';
+    this.label_color = settings.label_color || chalk.white;
+  }
+
+  public print () {
+    if (this.label.length > 0) {
+      process.stdout.write (this.label_color (this.label));
+      process.stdout.write (' ');
+    }
+    process.stdout.write (this.message_color (this.message));
+    process.stdout.write ('\n');
+  }
 }
 
 export class TaskListVertical {
@@ -22,20 +46,19 @@ export class TaskListVertical {
       if (count < this.tasks.length)
         process.stdout.write ('\u001b[K');
 
-      if (entry.label.length > 0) {
-        process.stdout.write (entry.label_color (entry.label));
-        process.stdout.write (' ');
-      }
-      process.stdout.write (entry.message_color (entry.message));
-      process.stdout.write ('\n');
+      entry.print ();
       count++;
     }
 
     this.log_entries = [];
   }
 
-  public log (entry: LogEntry) {
-    this.log_entries.push (entry);
+  public log (entry: LogEntrySettings | string) {
+    let settings = entry;
+    if (typeof settings === 'string')
+      settings = { message: settings };
+
+    this.log_entries.push (new LogEntry (settings));
   }
 
   public update () {

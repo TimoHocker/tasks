@@ -17,12 +17,15 @@ async function mock_task (
     if (task.progress > 0.8)
       task.color = chalk.blue;
     if (add % 3 === 0) {
-      list.log ({
-        label:         `task ${add}`,
-        message:       `Progress Log: ${Math.round (task.progress * 100)}%`,
-        label_color:   chalk.blue,
-        message_color: chalk.red
-      });
+      if (add > 0) {
+        list.log ({
+          label:         `task ${add}`,
+          message:       `Progress Log: ${Math.round (task.progress * 100)}%`,
+          label_color:   chalk.blue,
+          message_color: chalk.red
+        });
+      }
+      else { list.log (`Progress Log: ${Math.round (task.progress * 100)}%`); }
     }
     // eslint-disable-next-line no-await-in-loop
     await new Promise ((resolve) => setTimeout (resolve, 1000));
