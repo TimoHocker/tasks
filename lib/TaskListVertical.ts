@@ -40,7 +40,7 @@ export class TaskListVertical {
   private is_running = false;
   public isTTY;
 
-  constructor() {
+  constructor () {
     this.isTTY = process.stderr.isTTY;
     if (!this.isTTY) {
       process.stderr.write (
@@ -120,10 +120,10 @@ export class TaskListVertical {
         process.stderr.write ('\u001b[K\n');
         this.space_used++;
       }
-    } else {
-      for (let task of this.tasks) {
+    }
+    else {
+      for (const task of this.tasks)
         task.present_completed = task.completed;
-      }
     }
 
     if (this.tasks.length === completed && this.interval !== null) {
