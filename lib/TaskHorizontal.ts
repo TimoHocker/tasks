@@ -10,6 +10,7 @@ export class TaskHorizontal extends LabelledTask implements ITask {
   public length = 10;
   public display_percentage = true;
   public display_spinner = true;
+  public display_progress_bar = true;
   public state: TaskState = 'running';
 
   private spinner = (new Spinner);
@@ -38,20 +39,22 @@ export class TaskHorizontal extends LabelledTask implements ITask {
 
     this.present_label ();
 
-    process.stderr.write ('[');
-    for (let index = 0; index < Math.floor (progress); index++)
-      process.stderr.write (this.color (this.form[this.form.length - 1]));
+    if (this.display_progress_bar) {
+      process.stderr.write ('[');
+      for (let index = 0; index < Math.floor (progress); index++)
+        process.stderr.write (this.color (this.form[this.form.length - 1]));
 
-    if (this.progress < 1) {
-      const last_form = Math.floor (
-        this.form.length * (progress - Math.floor (progress))
-      );
-      process.stderr.write (this.color (this.form[last_form]));
+      if (this.progress < 1) {
+        const last_form = Math.floor (
+          this.form.length * (progress - Math.floor (progress))
+        );
+        process.stderr.write (this.color (this.form[last_form]));
+      }
+      for (let index = Math.floor (progress); index < this.length; index++)
+        process.stderr.write (' ');
+
+      process.stderr.write (']');
     }
-    for (let index = Math.ceil (progress); index < this.length; index++)
-      process.stderr.write (' ');
-
-    process.stderr.write (']');
 
     if (this.display_percentage)
       process.stderr.write (` ${Math.round (this.progress * 100)}%`);
