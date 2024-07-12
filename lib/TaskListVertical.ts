@@ -1,4 +1,4 @@
-/* eslint-disable max-classes-per-file */
+/* eslint-disable max-classes-per-file, max-lines-per-function, complexity */
 import chalk, { Chalk } from 'chalk';
 import { ITask } from './Task';
 
@@ -38,12 +38,23 @@ export class TaskListVertical {
   private space_used = 0;
   private log_entries: LogEntry[] = [];
   private is_running = false;
+  public isTTY;
+
+  constructor() {
+    this.isTTY = process.stderr.isTTY;
+    if (!this.isTTY) {
+      process.stderr.write (
+        'Tasks: started on non-TTY terminal. '
+        + 'No progress will be shown.\n'
+      );
+    }
+  }
 
   private print_logs () {
     let count = 0;
 
     for (const entry of this.log_entries) {
-      if (count < this.tasks.length)
+      if (count < this.tasks.length && process.stdout.isTTY)
         process.stdout.write ('\u001b[K');
 
       entry.print ();
@@ -61,9 +72,9 @@ export class TaskListVertical {
     const lines = settings.message.split ('\n');
 
     this.log_entries.push (
-      ...lines.map ((msg) => new LogEntry (
-        { ...settings as object, message: msg }
-      ))
+      ...lines.map (
+        (msg) => new LogEntry ({ ...(settings as object), message: msg })
+      )
     );
   }
 
@@ -75,6 +86,11 @@ export class TaskListVertical {
       completed++;
     }
 
+    const available_space: number
+      = typeof process.stdout.rows === 'number' && process.stdout.rows > 0
+        ? process.stdout.rows - 1
+        : this.tasks.length;
+
     let move_up = 0;
     const has_logs = this.log_entries.length > 0;
 
@@ -85,28 +101,42 @@ export class TaskListVertical {
     else
       move_up = Math.min (this.space_used, this.tasks.length - completed);
 
-    if (move_up > 0)
+    move_up = Math.min (move_up, available_space);
+
+    if (move_up > 0 && this.isTTY)
       process.stderr.write (`\u001b[${move_up}A`);
 
     if (has_logs)
       this.print_logs ();
 
-    this.space_used = has_logs ? 0 : completed;
-    for (let i = this.space_used; i < this.tasks.length; i++) {
-      this.tasks[i].present ();
-      process.stderr.write ('\u001b[K\n');
-      this.space_used++;
+    if (this.isTTY) {
+      this.space_used = has_logs ? 0 : completed;
+      for (
+        let i = this.space_used;
+        i < Math.min (this.tasks.length, available_space + completed);
+        i++
+      ) {
+        this.tasks[i].present ();
+        process.stderr.write ('\u001b[K\n');
+        this.space_used++;
+      }
+    } else {
+      for (let task of this.tasks) {
+        task.present_completed = task.completed;
+      }
     }
 
     if (this.tasks.length === completed && this.interval !== null) {
       clearInterval (this.interval);
       this.interval = null;
-      process.stderr.write ('\x1b[?25h');
+      if (this.isTTY)
+        process.stderr.write ('\x1b[?25h');
       this.is_running = false;
     }
     else if (this.interval === null) {
       this.interval = setInterval (() => this.update (), 100);
-      process.stderr.write ('\x1b[?25l');
+      if (this.isTTY)
+        process.stderr.write ('\x1b[?25l');
       this.is_running = true;
     }
   }
