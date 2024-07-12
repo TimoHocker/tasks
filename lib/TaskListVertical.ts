@@ -69,7 +69,8 @@ export class TaskListVertical {
     if (typeof settings === 'string')
       settings = { message: settings };
 
-    const lines = String(settings.message).split ('\n');
+    const lines = String (settings.message)
+      .split ('\n');
 
     this.log_entries.push (
       ...lines.map (
