@@ -17,7 +17,6 @@ export class TaskHorizontal extends LabelledTask implements ITask {
 
   public color = chalk.white;
   public form = [
-    '⠀',
     '⡇',
     '⣿'
   ];
@@ -44,13 +43,13 @@ export class TaskHorizontal extends LabelledTask implements ITask {
       for (let index = 0; index < Math.floor (progress); index++)
         process.stderr.write (this.color (this.form[this.form.length - 1]));
 
-      if (this.progress < 1) {
+      if (progress % 1 !== 0) {
         const last_form = Math.floor (
           this.form.length * (progress - Math.floor (progress))
         );
         process.stderr.write (this.color (this.form[last_form]));
       }
-      for (let index = Math.floor (progress); index < this.length; index++)
+      for (let index = Math.ceil (progress); index < this.length; index++)
         process.stderr.write (' ');
 
       process.stderr.write (']');

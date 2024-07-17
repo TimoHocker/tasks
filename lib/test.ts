@@ -71,6 +71,41 @@ for (let i = 0; i < 5; i++) {
   list_vertical.tasks.push (task);
 }
 
+const static_task1 = (new TaskHorizontal);
+static_task1.label = 'Static Task';
+static_task1.label_length = 10;
+static_task1.length = 10;
+static_task1.progress = 0;
+list_vertical.tasks.push (static_task1);
+
+const static_task2 = (new TaskHorizontal);
+static_task2.label = 'Static Task';
+static_task2.label_length = 10;
+static_task2.length = 10;
+static_task2.progress = 0.356;
+list_vertical.tasks.push (static_task2);
+
+const static_task3 = (new TaskHorizontal);
+static_task3.label = 'Static Task';
+static_task3.label_length = 10;
+static_task3.length = 10;
+static_task3.progress = 0.8;
+list_vertical.tasks.push (static_task3);
+
+const static_task4 = (new TaskHorizontal);
+static_task4.label = 'Static Task';
+static_task4.label_length = 10;
+static_task4.length = 10;
+static_task4.progress = 0.99999;
+list_vertical.tasks.push (static_task4);
+
+const static_task5 = (new TaskHorizontal);
+static_task5.label = 'Static Task';
+static_task5.label_length = 10;
+static_task5.length = 10;
+static_task5.progress = 1;
+list_vertical.tasks.push (static_task5);
+
 async function main () {
   /* eslint-disable no-console */
   console.log ('start line 1');
@@ -78,7 +113,12 @@ async function main () {
 
   list_vertical.update ();
 
-  // await Promise.all (tasks);
+  await Promise.all (tasks);
+  static_task1.completed = true;
+  static_task2.completed = true;
+  static_task3.completed = true;
+  static_task4.completed = true;
+  static_task5.completed = true;
   await list_vertical.await_end ();
 
   console.log ('end line 1');
