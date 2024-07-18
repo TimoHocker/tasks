@@ -8,6 +8,7 @@ export interface ITask {
   state: TaskState;
   present_completed: boolean;
   progress: number;
+  weight: number;
   present(): void;
 }
 
@@ -16,6 +17,7 @@ export class Task implements ITask {
   public completed = false;
   public present_completed = false;
   public state: TaskState = 'running';
+  public weight = 1;
 
   public color = chalk.white;
   public form = [

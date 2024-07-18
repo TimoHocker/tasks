@@ -106,6 +106,18 @@ static_task5.length = 10;
 static_task5.progress = 1;
 list_vertical.tasks.push (static_task5);
 
+const static_lh = (new TaskListHorizontal);
+static_lh.display_percentage = true;
+static_lh.label = 'Static Task';
+static_lh.label_length = 10;
+static_lh.tasks.push (new Task);
+static_lh.tasks.push (new Task);
+static_lh.tasks[0].progress = 0;
+static_lh.tasks[0].weight = 1;
+static_lh.tasks[1].progress = 1;
+static_lh.tasks[1].weight = 9;
+list_vertical.tasks.push (static_lh);
+
 async function main () {
   /* eslint-disable no-console */
   console.log ('start line 1');
@@ -119,6 +131,8 @@ async function main () {
   static_task3.completed = true;
   static_task4.completed = true;
   static_task5.completed = true;
+  static_lh.tasks[0].completed = true;
+  static_lh.tasks[1].completed = true;
   await list_vertical.await_end ();
 
   console.log ('end line 1');

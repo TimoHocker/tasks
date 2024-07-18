@@ -43,10 +43,12 @@ export class TaskListHorizontal extends LabelledTask implements ITask {
     if (this.tasks.length === 0)
       return 0;
 
-    return (
-      this.tasks.reduce ((acc, task) => acc + task.progress, 0)
-      / this.tasks.length
-    );
+    const res = this.tasks.reduce ((acc, task) => (
+      {
+        progress: acc.progress + Math.max (1, task.weight) * task.progress,
+        total:    acc.total + Math.max (1, task.weight)
+      }), { progress: 0, total: 0 });
+    return res.progress / res.total;
   }
 
   public present () {

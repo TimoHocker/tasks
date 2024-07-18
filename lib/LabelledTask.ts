@@ -1,6 +1,7 @@
 export class LabelledTask {
   public label = '';
   public label_length = 0;
+  public weight = 1;
 
   private get cut_label () {
     if (this.label_length === 0)
