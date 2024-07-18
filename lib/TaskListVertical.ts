@@ -38,6 +38,7 @@ export class TaskListVertical {
   private space_used = 0;
   private log_entries: LogEntry[] = [];
   private is_running = false;
+  public clear_completed = false;
   public isTTY;
 
   constructor () {
@@ -125,6 +126,11 @@ export class TaskListVertical {
     else {
       for (const task of this.tasks)
         task.present_completed = task.completed;
+    }
+
+    if (this.clear_completed) {
+      while (this.tasks.length > 0 && this.tasks[0].present_completed)
+        this.tasks.shift ();
     }
 
     if (this.tasks.length === completed && this.interval !== null) {
