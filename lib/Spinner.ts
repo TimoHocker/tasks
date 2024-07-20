@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { TaskState } from './Task';
+import { TaskState } from './BaseTask';
 
 export class Spinner {
   private spinner_index = 0;

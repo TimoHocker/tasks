@@ -1,6 +1,6 @@
 /* eslint-disable max-classes-per-file, max-lines-per-function, complexity */
 import chalk, { Chalk } from 'chalk';
-import { ITask } from './Task';
+import { TaskList } from './TaskList';
 
 interface LogEntrySettings {
   message: string;
@@ -32,8 +32,7 @@ class LogEntry {
   }
 }
 
-export class TaskListVertical {
-  public tasks: ITask[] = [];
+export class TaskListVertical extends TaskList {
   private interval: NodeJS.Timeout | null = null;
   private space_used = 0;
   private log_entries: LogEntry[] = [];
@@ -42,6 +41,7 @@ export class TaskListVertical {
   public isTTY;
 
   constructor () {
+    super ();
     this.isTTY = process.stderr.isTTY;
     if (!this.isTTY) {
       process.stderr.write (
@@ -80,7 +80,7 @@ export class TaskListVertical {
     );
   }
 
-  public update () {
+  public present () {
     let completed = 0;
     for (const task of this.tasks) {
       if (!task.present_completed)
@@ -132,19 +132,25 @@ export class TaskListVertical {
       while (this.tasks.length > 0 && this.tasks[0].present_completed)
         this.tasks.shift ();
     }
+  }
 
-    if (this.tasks.length === completed && this.interval !== null) {
+  public async update (): Promise<void> {
+    await this.present ();
+
+    if (this.subtasks_present_completed && this.interval !== null) {
       clearInterval (this.interval);
       this.interval = null;
       if (this.isTTY)
         process.stderr.write ('\x1b[?25h');
       this.is_running = false;
+      this.present_completed = true;
     }
     else if (this.interval === null) {
       this.interval = setInterval (() => this.update (), 100);
       if (this.isTTY)
         process.stderr.write ('\x1b[?25l');
       this.is_running = true;
+      this.present_completed = false;
     }
   }
 

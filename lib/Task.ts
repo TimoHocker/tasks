@@ -1,24 +1,7 @@
 import chalk from 'chalk';
+import { BaseTask } from './BaseTask';
 
-export type TaskState = 'failed' | 'paused' | 'running'
-| 'skipped' | 'successful';
-
-export interface ITask {
-  completed: boolean;
-  state: TaskState;
-  present_completed: boolean;
-  progress: number;
-  weight: number;
-  present(): void;
-}
-
-export class Task implements ITask {
-  public progress = 0;
-  public completed = false;
-  public present_completed = false;
-  public state: TaskState = 'running';
-  public weight = 1;
-
+export class Task extends BaseTask {
   public color = chalk.white;
   public form = [
     '⠀',

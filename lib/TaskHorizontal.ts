@@ -1,17 +1,19 @@
 import chalk from 'chalk';
-import { ITask, TaskState } from './Task';
-import { LabelledTask } from './LabelledTask';
+import { TaskLabel } from './TaskLabel';
 import { Spinner } from './Spinner';
+import { BaseTask } from './BaseTask';
 
-export class TaskHorizontal extends LabelledTask implements ITask {
-  public progress = 0;
-  public completed = false;
-  public present_completed = false;
+export class TaskHorizontal extends BaseTask {
   public length = 10;
   public display_percentage = true;
   public display_spinner = true;
   public display_progress_bar = true;
-  public state: TaskState = 'running';
+  public display_remaining = true;
+  private _label = (new TaskLabel);
+
+  public get label () {
+    return this._label;
+  }
 
   private spinner = (new Spinner);
 
@@ -26,7 +28,7 @@ export class TaskHorizontal extends LabelledTask implements ITask {
       if (this.state === 'running')
         this.state = 'successful';
       this.spinner.present (this.state);
-      this.present_label (true);
+      this.label.present (true);
       this.present_completed = true;
       return;
     }
@@ -36,7 +38,7 @@ export class TaskHorizontal extends LabelledTask implements ITask {
     if (this.display_spinner)
       this.spinner.present (this.state);
 
-    this.present_label ();
+    this.label.present ();
 
     if (this.display_progress_bar) {
       process.stderr.write ('[');
@@ -57,5 +59,10 @@ export class TaskHorizontal extends LabelledTask implements ITask {
 
     if (this.display_percentage)
       process.stderr.write (` ${Math.round (this.progress * 100)}%`);
+
+    if (this.display_remaining && this.task_id.length > 0) {
+      const remaining = this.remaining_time_formatted;
+      process.stderr.write (` ${remaining}`);
+    }
   }
 }
