@@ -15,7 +15,7 @@ export class Task extends BaseTask {
     '⣿'
   ];
 
-  public present () {
+  protected do_present () {
     if (this.completed)
       this.present_completed = true;
     const index = Math.min (

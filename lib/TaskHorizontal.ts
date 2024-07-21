@@ -23,7 +23,7 @@ export class TaskHorizontal extends BaseTask {
     '⣿'
   ];
 
-  public present () {
+  protected do_present () {
     if (this.completed) {
       if (this.state === 'running')
         this.state = 'successful';

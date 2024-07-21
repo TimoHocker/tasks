@@ -114,7 +114,7 @@ export class TaskListVertical extends TaskList {
     );
   }
 
-  public present () {
+  protected do_present () {
     let completed = 0;
     for (const task of this.tasks) {
       if (!task.present_completed)

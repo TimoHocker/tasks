@@ -22,8 +22,17 @@ export abstract class BaseTask {
   private _task_id = '';
   private _average_time = 0;
   private _start_time = 0;
+  private _progress_by_time = false;
 
   public present_completed = false;
+
+  public get progress_by_time () {
+    return this._progress_by_time;
+  }
+
+  public set progress_by_time (value: boolean) {
+    this._progress_by_time = value;
+  }
 
   public get state () {
     return this._state;
@@ -33,13 +42,20 @@ export abstract class BaseTask {
     this._state = value;
   }
 
+  public get elapsed_time () {
+    if (this._start_time === 0)
+      return 0;
+
+    return Date.now () - this._start_time;
+  }
+
   public get remaining_time () {
     if (this._start_time === 0)
       return 0;
     if (this._average_time === 0)
       return 0;
 
-    const time = Date.now () - this._start_time;
+    const time = this.elapsed_time;
     const remaining = Math.max (0, this._average_time - time);
     return remaining;
   }
@@ -133,5 +149,12 @@ export abstract class BaseTask {
     this._start_time = 0;
   }
 
-  public abstract present(): void;
+  public present () {
+    if (this.progress_by_time && this._start_time > 0 && this.average_time > 0) {
+      this.progress = Math.min(Math.max(this.elapsed_time / this.average_time, 0), 1);
+    }
+    this.do_present ();
+  }
+
+  protected abstract do_present(): void;
 }

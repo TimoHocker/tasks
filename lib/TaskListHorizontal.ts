@@ -13,7 +13,7 @@ export class TaskListHorizontal extends TaskList {
 
   private spinner = (new Spinner);
 
-  public present () {
+  protected do_present () {
     if (this.completed) {
       this.spinner.present (this.state);
       this.label.present (true);
