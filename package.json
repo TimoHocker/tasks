@@ -1,6 +1,6 @@
 {
   "name": "@sapphirecode/tasks",
-  "version": "2.0.1",
+  "version": "2.0.2",
   "main": "dist/index.js",
   "author": {
     "name": "Timo Hocker",
@@ -28,9 +28,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "https://git.scode.ovh/timo/tasks.git"
+    "url": "https://github.com/TimoHocker/tasks.git"
   },
-  "bugs": "https://git.scode.ovh/timo/tasks",
+  "bugs": "https://github.com/TimoHocker/tasks/issues",
   "description": "Progress displays for large amounts of tasks",
   "keywords": [
     "progress",
