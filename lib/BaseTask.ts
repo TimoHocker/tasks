@@ -150,9 +150,18 @@ export abstract class BaseTask {
   }
 
   public present () {
-    if (this.progress_by_time && this._start_time > 0 && this.average_time > 0) {
-      this.progress = Math.min(Math.max(this.elapsed_time / this.average_time, 0), 1);
+    if (this.progress_by_time
+      && this._start_time > 0
+      && this.average_time > 0) {
+      this.progress = Math.min (
+        Math.max (
+          this.elapsed_time / this.average_time,
+          0
+        ),
+        1
+      );
     }
+
     this.do_present ();
   }
 

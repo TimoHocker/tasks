@@ -1,13 +1,13 @@
 import assert from 'assert';
+import os from 'os';
+import { join } from 'path';
 import chalk from 'chalk';
 import { TaskListVertical } from './TaskListVertical';
 import { TaskListHorizontal } from './TaskListHorizontal';
 import { TaskHorizontal } from './TaskHorizontal';
 import { ITask } from './BaseTask';
 import { Task } from './Task';
-import os from 'os';
 import { time_store } from './TimeStore';
-import { join } from 'path';
 
 const list_vertical = (new TaskListVertical);
 
@@ -128,7 +128,7 @@ async function main () {
   console.log ('start line 1');
   console.log ('start line 2');
 
-  await time_store.use_file(join(os.tmpdir(), 'tasks_time_store.json'));
+  await time_store.use_file (join (os.tmpdir (), 'tasks_time_store.json'));
 
   static_task1.task_id = 'task1';
   static_task1.progress_by_time = true;
