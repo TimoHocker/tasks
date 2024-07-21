@@ -90,11 +90,15 @@ export class TaskListVertical extends TaskList {
       }
     }
     else if (typeof width === 'number' && width < 4) {
-      log_lines.push(...lines);
+      log_lines.push (...lines);
     }
     else {
-      this.log({message: `[${label}]`, message_color: settings.label_color});
-      this.log({message: settings.message, message_color: settings.message_color, label: ' '});
+      this.log ({ message: `[${label}]`, message_color: settings.label_color });
+      this.log ({
+        message:       settings.message,
+        message_color: settings.message_color,
+        label:         ' '
+      });
       return;
     }
 
