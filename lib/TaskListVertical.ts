@@ -73,8 +73,33 @@ export class TaskListVertical extends TaskList {
     const lines = String (settings.message)
       .split ('\n');
 
+    const log_lines: string[] = [];
+
+    const label = settings.label || '';
+    const width = process.stdout.columns;
+
+    if (typeof width === 'number' && width > label.length) {
+      for (const line of lines) {
+        let remaining = line;
+        while (remaining.length + label.length + 1 > width) {
+          const split = remaining.slice (0, width - label.length - 1);
+          log_lines.push (split);
+          remaining = remaining.slice (width - label.length - 1);
+        }
+        log_lines.push (remaining);
+      }
+    }
+    else if (typeof width === 'number' && width < 4) {
+      log_lines.push(...lines);
+    }
+    else {
+      this.log({message: `[${label}]`, message_color: settings.label_color});
+      this.log({message: settings.message, message_color: settings.message_color, label: ' '});
+      return;
+    }
+
     this.log_entries.push (
-      ...lines.map (
+      ...log_lines.map (
         (msg) => new LogEntry ({ ...(settings as object), message: msg })
       )
     );

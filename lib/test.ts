@@ -137,6 +137,23 @@ async function main () {
   static_task5.completed = true;
   static_lh.tasks[0].completed = true;
   static_lh.tasks[1].completed = true;
+
+  list_vertical.log ({
+    label:       'test',
+    label_color: chalk.red,
+    message:     'All tasks completed'
+  });
+  list_vertical.log ({
+    label:       'test',
+    label_color: chalk.red,
+    message:     'very long message '.repeat (20)
+  });
+  list_vertical.log ({
+    label:       'verylonglabel'.repeat (10),
+    label_color: chalk.red,
+    message:     'very long message '.repeat (20)
+  });
+
   await list_vertical.await_end ();
 
   await static_task1.stop_timer (true);
