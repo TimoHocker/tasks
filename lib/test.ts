@@ -1,3 +1,5 @@
+/* eslint-disable no-console, max-lines-per-function */
+/* eslint-disable max-statements, no-await-in-loop */
 import assert from 'assert';
 import os from 'os';
 import { join } from 'path';
@@ -10,6 +12,10 @@ import { Task } from './Task';
 import { time_store } from './TimeStore';
 
 const list_vertical = (new TaskListVertical);
+
+function delay (time: number) {
+  return new Promise ((resolve) => setTimeout (resolve, time));
+}
 
 async function mock_task (
   task: ITask,
@@ -40,7 +46,7 @@ async function mock_task (
       else { list.log (`Progress Log: ${Math.round (task.progress * 100)}%`); }
     }
     // eslint-disable-next-line no-await-in-loop
-    await new Promise ((resolve) => setTimeout (resolve, 1000));
+    await delay (1000);
   }
   if (Math.random () > 0.8)
     task.state = 'failed';
@@ -124,7 +130,6 @@ static_lh.tasks[1].total = 9;
 list_vertical.tasks.push (static_lh);
 
 async function main () {
-  /* eslint-disable no-console */
   console.log ('start line 1');
   console.log ('start line 2');
 
@@ -169,6 +174,39 @@ async function main () {
 
   console.log ('end line 1');
   console.log ('end line 2');
+
+  const list2 = (new TaskListVertical);
+  list2.clear_completed = true;
+  let task1 = new TaskHorizontal;
+  task1.label.value = 'Task 1';
+  task1.label.length = 10;
+  list2.tasks.push (task1);
+  list2.clear_completed = false;
+  let task2 = new TaskHorizontal;
+  task2.label.value = 'Task 2';
+  task2.label.length = 10;
+  list2.tasks.push (task2);
+  list2.update ();
+  for (let i = 0; i < 10; i++) {
+    task1.progress = 1;
+    task1.completed = true;
+    task2.progress = 0.5;
+    task1 = task2;
+    task2 = new TaskHorizontal;
+    task2.label.value = `Task ${i + 3}`;
+    task2.label.length = 10;
+    if (Math.random () > 0.2)
+      list2.tasks.push (task2);
+    else
+      list2.tasks.unshift (task2);
+
+
+    // list2.log(list2.tasks.length.toString());
+    await delay (1000);
+  }
+  task1.completed = true;
+  task2.completed = true;
+  await list2.await_end ();
 }
 
 main ();
