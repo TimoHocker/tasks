@@ -153,7 +153,10 @@ export abstract class BaseTask {
     if (this.progress_by_time
       && this._start_time > 0
       && this.average_time > 0) {
-      this.current = Math.min (Math.max (this.elapsed_time, 0), this.average_time);
+      this.current = Math.min (
+        Math.max (this.elapsed_time, 0),
+        this.average_time
+      );
       this.total = this.average_time;
     }
 
