@@ -33,6 +33,12 @@ export class TaskHorizontal extends BaseTask {
       return;
     }
 
+    if (this.progress_by_time) {
+      this.display_remaining = this.average_time > 0;
+      this.display_progress_bar = this.average_time > 0;
+      this.display_percentage = this.average_time > 0;
+    }
+
     const progress = this.length * this.progress;
 
     if (this.display_spinner)

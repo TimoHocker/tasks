@@ -62,9 +62,7 @@ export abstract class BaseTask {
 
   public get remaining_time_formatted () {
     const day = 24 * 60 * 60 * 1000;
-    const remaining = this.remaining_time;
-    if (remaining === 0)
-      return '0s';
+    const remaining = this.remaining_time + 1000;
 
     let result = '';
 
@@ -106,6 +104,8 @@ export abstract class BaseTask {
 
   public set completed (value: boolean) {
     this._completed = value;
+    if (this.progress_by_time)
+      this.current = this.total;
   }
 
   public get progress () {
@@ -153,13 +153,8 @@ export abstract class BaseTask {
     if (this.progress_by_time
       && this._start_time > 0
       && this.average_time > 0) {
-      this.progress = Math.min (
-        Math.max (
-          this.elapsed_time / this.average_time,
-          0
-        ),
-        1
-      );
+      this.current = Math.min (Math.max (this.elapsed_time, 0), this.average_time);
+      this.total = this.average_time;
     }
 
     this.do_present ();
