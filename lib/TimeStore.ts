@@ -32,13 +32,8 @@ class TimeStore {
     try {
       this.data = JSON.parse (await fs.readFile (this.file, 'utf8'));
     }
-    catch (e) {
-      if (typeof e === 'object'
-        && e !== null
-        && typeof (e as Record<string, unknown>).code === 'string'
-        && (e as Record<string, unknown>).code === 'ENOENT')
-        return;
-      throw e;
+    catch {
+      this.data = {};
     }
   }
 
