@@ -187,12 +187,15 @@ async function main () {
   task2.label.length = 10;
   list2.tasks.push (task2);
   list2.update ();
+  const uncompleted = [task1, task2];
   for (let i = 0; i < 10; i++) {
-    task1.progress = 1;
-    task1.completed = true;
+    if (Math.random() > 0.5) {
+      uncompleted.shift()!.completed = true;
+    }
     task2.progress = 0.5;
     task1 = task2;
     task2 = new TaskHorizontal;
+    uncompleted.push (task2);
     task2.label.value = `Task ${i + 3}`;
     task2.label.length = 10;
     if (Math.random () > 0.2)
@@ -204,8 +207,10 @@ async function main () {
     // list2.log(list2.tasks.length.toString());
     await delay (1000);
   }
-  task1.completed = true;
-  task2.completed = true;
+  while (uncompleted.length > 0) {
+    uncompleted.shift()!.completed = true;
+    await delay (1000);
+  }
   await list2.await_end ();
 }
 

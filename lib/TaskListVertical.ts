@@ -1,6 +1,9 @@
 /* eslint-disable max-classes-per-file, max-lines-per-function, complexity */
 import chalk, { Chalk } from 'chalk';
 import { TaskList } from './TaskList';
+import debug from 'debug';  
+
+const log = debug('sapphirecode:tasks:TaskListVertical');
 
 interface LogEntrySettings {
   message: string;
@@ -163,8 +166,10 @@ export class TaskListVertical extends TaskList {
     }
 
     if (this.clear_completed) {
-      while (this.tasks.length > 0 && this.tasks[0].present_completed)
+      while (this.tasks.length > 0 && this.tasks[0].present_completed) {
         this.tasks.shift ();
+        this.space_used--;
+      }
     }
   }
 
@@ -189,8 +194,12 @@ export class TaskListVertical extends TaskList {
   }
 
   public async await_end (): Promise<void> {
-    while (this.interval !== null)
+    const sublog = log.extend('await_end');
+    while (this.interval !== null) {
       // eslint-disable-next-line no-await-in-loop
       await new Promise ((resolve) => setTimeout (resolve, 100));
+      sublog(`running: ${this.is_running}; subtasks_present_completed: ${
+        this.subtasks_present_completed}; interval: ${!!this.interval}`);
+    }
   }
 }
