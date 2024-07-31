@@ -192,8 +192,11 @@ async function main () {
     task2
   ];
   for (let i = 0; i < 10; i++) {
-    if (Math.random () > 0.5)
-      uncompleted.shift ().completed = true;
+    if (Math.random () > 0.5) {
+      const task = uncompleted.shift ();
+      assert (typeof task !== 'undefined', 'Task must be defined');
+      task.completed = true;
+    }
 
     task2.progress = 0.5;
     task1 = task2;
@@ -211,7 +214,9 @@ async function main () {
     await delay (1000);
   }
   while (uncompleted.length > 0) {
-    uncompleted.shift ().completed = true;
+    const task = uncompleted.shift ();
+    assert (typeof task !== 'undefined', 'Task must be defined');
+    task.completed = true;
     await delay (1000);
   }
   await list2.await_end ();
