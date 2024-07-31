@@ -176,7 +176,7 @@ export class TaskListVertical extends TaskList {
   public async update (): Promise<void> {
     await this.present ();
 
-    if (this.subtasks_present_completed && this.interval !== null) {
+    if ((this.subtasks_present_completed || this.tasks.length === 0) && this.interval !== null) {
       clearInterval (this.interval);
       this.interval = null;
       if (this.isTTY)
