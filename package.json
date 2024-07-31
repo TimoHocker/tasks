@@ -21,7 +21,8 @@
     "typescript": "^5.3.3"
   },
   "dependencies": {
-    "chalk": "4"
+    "chalk": "4",
+    "debug": "^4.3.6"
   },
   "engines": {
     "node": ">=11.14.0"
