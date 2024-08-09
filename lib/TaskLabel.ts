@@ -1,3 +1,5 @@
+import { OccupiedSpace } from './Space';
+
 export class TaskLabel {
   public value = '';
   public length = 0;
@@ -10,12 +12,15 @@ export class TaskLabel {
     return this.value.padEnd (this.length, ' ');
   }
 
-  public present (full = false) {
+  public present (full = false): OccupiedSpace {
     if (this.value.length === 0)
-      return;
+      return new OccupiedSpace (0, 0);
+    let value = '';
     if (full)
-      process.stderr.write (`${this.value} `);
+      value = `${this.value} `;
     else
-      process.stderr.write (`${this.cut_value} `);
+      value = `${this.cut_value} `;
+    process.stderr.write (value);
+    return new OccupiedSpace (value.length, 0);
   }
 }

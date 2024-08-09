@@ -1,5 +1,6 @@
 import chalk from 'chalk';
 import { color_by_state, TaskState } from './State';
+import { OccupiedSpace } from './Space';
 
 export class Spinner {
   private spinner_index = 0;
@@ -21,7 +22,7 @@ export class Spinner {
     this.spinner_index = (this.spinner_index + 1) % this.spinner_form.length;
   }
 
-  public present (state: TaskState) {
+  public present (state: TaskState): OccupiedSpace {
     let symbol = '';
     switch (state) {
       case 'failed':
@@ -43,5 +44,7 @@ export class Spinner {
       process.stderr.write (`${color_by_state (state) (symbol)} `);
     else
       this.present_running ();
+
+    return new OccupiedSpace (2, 0);
   }
 }

@@ -1,7 +1,9 @@
+/* eslint-disable max-statements */
 import chalk from 'chalk';
 import { TaskLabel } from './TaskLabel';
 import { Spinner } from './Spinner';
 import { BaseTask } from './BaseTask';
+import { OccupiedSpace } from './Space';
 
 export class TaskHorizontal extends BaseTask {
   public length = 10;
@@ -23,14 +25,15 @@ export class TaskHorizontal extends BaseTask {
     '⣿'
   ];
 
-  protected do_present () {
+  protected do_present (): OccupiedSpace {
+    const space = new OccupiedSpace (0, 0);
     if (this.completed) {
       if (this.state === 'running')
         this.state = 'successful';
       this.spinner.present (this.state);
       this.label.present (true);
       this.present_completed = true;
-      return;
+      return space;
     }
 
     if (this.progress_by_time) {
@@ -42,11 +45,12 @@ export class TaskHorizontal extends BaseTask {
     const progress = this.length * this.progress;
 
     if (this.display_spinner)
-      this.spinner.present (this.state);
+      space.add (this.spinner.present (this.state));
 
-    this.label.present ();
+    space.add (this.label.present ());
 
     if (this.display_progress_bar) {
+      space.add (this.length + 2, 0);
       process.stderr.write ('[');
       for (let index = 0; index < Math.floor (progress); index++)
         process.stderr.write (this.color (this.form[this.form.length - 1]));
@@ -63,12 +67,16 @@ export class TaskHorizontal extends BaseTask {
       process.stderr.write (']');
     }
 
-    if (this.display_percentage)
-      process.stderr.write (` ${Math.round (this.progress * 100)}%`);
-
+    if (this.display_percentage) {
+      const percentage = ` ${Math.round (this.progress * 100)}%`;
+      process.stderr.write (percentage);
+      space.add (percentage.length, 0);
+    }
     if (this.display_remaining && this.task_id.length > 0) {
       const remaining = this.remaining_time_formatted;
       process.stderr.write (` ${remaining}`);
+      space.add (remaining.length + 1, 0);
     }
+    return space;
   }
 }

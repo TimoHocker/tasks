@@ -1,6 +1,7 @@
 import { Chalk } from 'chalk';
-import { BaseTask } from './BaseTask';
 import { color_by_state } from './State';
+import { OccupiedSpace } from './Space';
+import { BaseTask } from './BaseTask';
 
 export class Task extends BaseTask {
   public color: Chalk | null = null;
@@ -16,7 +17,7 @@ export class Task extends BaseTask {
     '⣿'
   ];
 
-  protected do_present () {
+  protected do_present (): OccupiedSpace {
     if (this.completed)
       this.present_completed = true;
     const index = Math.min (
@@ -25,5 +26,6 @@ export class Task extends BaseTask {
     );
     const color = this.color || color_by_state (this.state);
     process.stderr.write (color (this.form[index]));
+    return new OccupiedSpace (1, 0);
   }
 }

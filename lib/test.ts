@@ -7,7 +7,7 @@ import chalk from 'chalk';
 import { TaskListVertical } from './TaskListVertical';
 import { TaskListHorizontal } from './TaskListHorizontal';
 import { TaskHorizontal } from './TaskHorizontal';
-import { ITask } from './BaseTask';
+import { BaseTask, ITask } from './BaseTask';
 import { Task } from './Task';
 import { time_store } from './TimeStore';
 
@@ -191,7 +191,7 @@ async function main () {
   const summary = (new TaskListHorizontal);
   list2.tasks.push (summary);
   list2.update ();
-  const uncompleted = [
+  const uncompleted: BaseTask[] = [
     task1,
     task2
   ];
@@ -228,11 +228,18 @@ async function main () {
     // list2.log(list2.tasks.length.toString());
     await delay (1000);
   }
+  for (let i = 0; i < 200; i++) {
+    const task = new Task;
+    summary.tasks.push (task);
+    uncompleted.push (task);
+    task.progress = 0.5;
+  }
   while (uncompleted.length > 0) {
     const task = uncompleted.shift ();
     assert (typeof task !== 'undefined', 'Task must be defined');
     task.completed = true;
-    await delay (1000);
+    task.progress = 1;
+    await delay (25);
   }
   await list2.await_end ();
 }

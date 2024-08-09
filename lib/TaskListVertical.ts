@@ -2,6 +2,8 @@
 import chalk, { Chalk } from 'chalk';
 import debug from 'debug';
 import { TaskList } from './TaskList';
+import { OccupiedSpace } from './Space';
+import  assert  from 'assert';
 
 const log = debug ('sapphirecode:tasks:TaskListVertical');
 
@@ -48,8 +50,7 @@ export class TaskListVertical extends TaskList {
     this.isTTY = process.stderr.isTTY;
     if (!this.isTTY) {
       process.stderr.write (
-        'Tasks: started on non-TTY terminal. '
-        + 'No progress will be shown.\n'
+        'Tasks: started on non-TTY terminal. No progress will be shown.\n'
       );
     }
   }
@@ -117,18 +118,22 @@ export class TaskListVertical extends TaskList {
     );
   }
 
-  protected do_present () {
+  protected do_present (): OccupiedSpace {
     let completed = 0;
     for (const task of this.tasks) {
       if (!task.present_completed)
         break;
-      completed++;
+      completed += task.previous_vertical_space + 1;
     }
+    const total = this.tasks.reduce (
+      (acc, task) => acc + task.previous_vertical_space + 1,
+      0
+    );
 
     const available_space: number
       = typeof process.stdout.rows === 'number' && process.stdout.rows > 0
         ? process.stdout.rows - 1
-        : this.tasks.length;
+        : total;
 
     let move_up = 0;
     const has_logs = this.log_entries.length > 0;
@@ -136,9 +141,9 @@ export class TaskListVertical extends TaskList {
     if (!this.is_running)
       move_up = 0;
     else if (has_logs)
-      move_up = this.tasks.length;
+      move_up = total;
     else
-      move_up = Math.min (this.space_used, this.tasks.length - completed);
+      move_up = Math.min (this.space_used, total - completed);
 
     move_up = Math.min (move_up, available_space);
 
@@ -155,9 +160,9 @@ export class TaskListVertical extends TaskList {
         i < Math.min (this.tasks.length, available_space + completed);
         i++
       ) {
-        this.tasks[i].present ();
+        const space = this.tasks[i].present ();
         process.stderr.write ('\u001b[K\n');
-        this.space_used++;
+        this.space_used += space.height + 1;
       }
     }
     else {
@@ -167,10 +172,12 @@ export class TaskListVertical extends TaskList {
 
     if (this.clear_completed) {
       while (this.tasks.length > 0 && this.tasks[0].present_completed) {
-        this.tasks.shift ();
-        this.space_used--;
+        const task = this.tasks.shift ();
+        assert (task !== undefined, 'Task is undefined');
+        this.space_used -= 1 + task.previous_vertical_space;
       }
     }
+    return new OccupiedSpace (0, this.space_used);
   }
 
   public async update (): Promise<void> {
@@ -201,9 +208,11 @@ export class TaskListVertical extends TaskList {
     while (this.interval !== null) {
       // eslint-disable-next-line no-await-in-loop
       await new Promise ((resolve) => setTimeout (resolve, 100));
-      sublog (`running: ${this.is_running}; subtasks_present_completed: ${
-        this.subtasks_present_completed}; interval: ${
-        Boolean (this.interval)}`);
+      sublog (
+        `running: ${this.is_running}; subtasks_present_completed: ${
+          this.subtasks_present_completed
+        }; interval: ${Boolean (this.interval)}`
+      );
     }
   }
 }

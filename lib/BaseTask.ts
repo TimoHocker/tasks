@@ -1,6 +1,7 @@
 import assert from 'assert';
 import { time_store } from './TimeStore';
 import { TaskState } from './State';
+import { OccupiedSpace } from './Space';
 
 export interface ITask {
   completed: boolean;
@@ -9,7 +10,8 @@ export interface ITask {
   progress: number;
   current: number;
   total: number;
-  present(): void;
+  previous_vertical_space: number;
+  present(): OccupiedSpace;
 }
 
 export abstract class BaseTask {
@@ -21,10 +23,15 @@ export abstract class BaseTask {
   private _average_time = 0;
   private _start_time = 0;
   private _progress_by_time = false;
+  private _previous_vertical_space = 0;
   /* eslint-disable-next-line no-use-before-define */
   private _sync_task: BaseTask | null = null;
 
   public present_completed = false;
+
+  public get previous_vertical_space () {
+    return this._previous_vertical_space;
+  }
 
   public get progress_by_time () {
     if (this._sync_task !== null)
@@ -186,7 +193,7 @@ export abstract class BaseTask {
       });
   }
 
-  public present () {
+  public present (): OccupiedSpace {
     if (this._sync_task === null
       && this.progress_by_time
       && this._start_time > 0
@@ -198,8 +205,10 @@ export abstract class BaseTask {
       this.total = this.average_time;
     }
 
-    this.do_present ();
+    const space = this.do_present ();
+    this._previous_vertical_space = space.height;
+    return space;
   }
 
-  protected abstract do_present(): void;
+  protected abstract do_present(): OccupiedSpace;
 }
