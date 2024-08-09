@@ -6,7 +6,7 @@ import { TaskList } from './TaskList';
 export class TaskListHorizontal extends TaskList {
   public display_percentage = true;
   public display_spinner = true;
-  public horizontal_limit = process.stderr.columns || 80;
+  public horizontal_limit = (process.stderr.columns || 80) - 5;
   private _label = (new TaskLabel);
 
   public get label () {
@@ -32,8 +32,8 @@ export class TaskListHorizontal extends TaskList {
 
     for (const task of this.tasks) {
       if (space.width > this.horizontal_limit) {
-        process.stderr.write ('\n');
-        space.width = 0;
+        process.stderr.write ('\n  ');
+        space.width = 2;
         space.height++;
       }
       space.add (task.present ());

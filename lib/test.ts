@@ -228,7 +228,7 @@ async function main () {
     // list2.log(list2.tasks.length.toString());
     await delay (1000);
   }
-  for (let i = 0; i < 200; i++) {
+  for (let i = 0; i < 400; i++) {
     const task = new Task;
     summary.tasks.push (task);
     uncompleted.push (task);

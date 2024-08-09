@@ -1,9 +1,9 @@
 /* eslint-disable max-classes-per-file, max-lines-per-function, complexity */
+import assert from 'assert';
 import chalk, { Chalk } from 'chalk';
 import debug from 'debug';
 import { TaskList } from './TaskList';
 import { OccupiedSpace } from './Space';
-import  assert  from 'assert';
 
 const log = debug ('sapphirecode:tasks:TaskListVertical');
 
@@ -39,7 +39,6 @@ class LogEntry {
 
 export class TaskListVertical extends TaskList {
   private interval: NodeJS.Timeout | null = null;
-  private space_used = 0;
   private log_entries: LogEntry[] = [];
   private is_running = false;
   public clear_completed = false;
@@ -119,13 +118,15 @@ export class TaskListVertical extends TaskList {
   }
 
   protected do_present (): OccupiedSpace {
-    let completed = 0;
+    let completed_space = 0;
+    let completed_tasks = 0;
     for (const task of this.tasks) {
       if (!task.present_completed)
         break;
-      completed += task.previous_vertical_space + 1;
+      completed_space += task.previous_vertical_space + 1;
+      completed_tasks++;
     }
-    const total = this.tasks.reduce (
+    const total_space = this.tasks.reduce (
       (acc, task) => acc + task.previous_vertical_space + 1,
       0
     );
@@ -133,7 +134,7 @@ export class TaskListVertical extends TaskList {
     const available_space: number
       = typeof process.stdout.rows === 'number' && process.stdout.rows > 0
         ? process.stdout.rows - 1
-        : total;
+        : total_space;
 
     let move_up = 0;
     const has_logs = this.log_entries.length > 0;
@@ -141,9 +142,9 @@ export class TaskListVertical extends TaskList {
     if (!this.is_running)
       move_up = 0;
     else if (has_logs)
-      move_up = total;
+      move_up = total_space;
     else
-      move_up = Math.min (this.space_used, total - completed);
+      move_up = total_space - completed_space;
 
     move_up = Math.min (move_up, available_space);
 
@@ -153,16 +154,17 @@ export class TaskListVertical extends TaskList {
     if (has_logs)
       this.print_logs ();
 
+    const used_space = new OccupiedSpace (0, 0);
     if (this.isTTY) {
-      this.space_used = has_logs ? 0 : completed;
       for (
-        let i = this.space_used;
-        i < Math.min (this.tasks.length, available_space + completed);
+        let i = completed_tasks;
+        i < this.tasks.length;
         i++
       ) {
-        const space = this.tasks[i].present ();
+        used_space.add (this.tasks[i].present ());
         process.stderr.write ('\u001b[K\n');
-        this.space_used += space.height + 1;
+        if (used_space.height >= available_space)
+          break;
       }
     }
     else {
@@ -173,11 +175,10 @@ export class TaskListVertical extends TaskList {
     if (this.clear_completed) {
       while (this.tasks.length > 0 && this.tasks[0].present_completed) {
         const task = this.tasks.shift ();
-        assert (task !== undefined, 'Task is undefined');
-        this.space_used -= 1 + task.previous_vertical_space;
+        assert (typeof task !== 'undefined', 'Task is undefined');
       }
     }
-    return new OccupiedSpace (0, this.space_used);
+    return used_space;
   }
 
   public async update (): Promise<void> {
