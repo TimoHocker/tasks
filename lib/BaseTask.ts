@@ -27,6 +27,8 @@ export abstract class BaseTask {
   public present_completed = false;
 
   public get progress_by_time () {
+    if (this._sync_task !== null)
+      return this._sync_task.progress_by_time;
     return this._progress_by_time;
   }
 
@@ -39,6 +41,8 @@ export abstract class BaseTask {
   }
 
   public get state () {
+    if (this._sync_task !== null)
+      return this._sync_task.state;
     return this._state;
   }
 
@@ -46,14 +50,20 @@ export abstract class BaseTask {
     this._state = value;
   }
 
-  public get elapsed_time () {
+  public get elapsed_time (): number {
+    if (this._sync_task !== null)
+      return this._sync_task.elapsed_time;
+
     if (this._start_time === 0)
       return 0;
 
     return Date.now () - this._start_time;
   }
 
-  public get remaining_time () {
+  public get remaining_time (): number {
+    if (this._sync_task !== null)
+      return this._sync_task.remaining_time;
+
     if (this._start_time === 0)
       return 0;
     if (this._average_time === 0)
@@ -64,7 +74,7 @@ export abstract class BaseTask {
     return remaining;
   }
 
-  public get remaining_time_formatted () {
+  public get remaining_time_formatted (): string {
     const day = 24 * 60 * 60 * 1000;
     const remaining = this.remaining_time + 1000;
 
@@ -88,7 +98,9 @@ export abstract class BaseTask {
     return result;
   }
 
-  public get task_id () {
+  public get task_id (): string {
+    if (this._sync_task !== null)
+      return this._sync_task.task_id;
     return this._task_id;
   }
 
@@ -98,11 +110,15 @@ export abstract class BaseTask {
       this._average_time = time_store.get_avg_time (value);
   }
 
-  public get average_time () {
+  public get average_time (): number {
+    if (this._sync_task !== null)
+      return this._sync_task.average_time;
     return this._average_time;
   }
 
-  public get completed () {
+  public get completed (): boolean {
+    if (this._sync_task !== null)
+      return this._sync_task.completed;
     return this._completed;
   }
 
@@ -112,7 +128,9 @@ export abstract class BaseTask {
       this.current = this.total;
   }
 
-  public get progress () {
+  public get progress (): number {
+    if (this._sync_task !== null)
+      return this._sync_task.progress;
     return this._current / this._total;
   }
 
@@ -121,7 +139,9 @@ export abstract class BaseTask {
     this._current = value;
   }
 
-  public get total () {
+  public get total (): number {
+    if (this._sync_task !== null)
+      return this._sync_task.total;
     return this._total;
   }
 
@@ -131,6 +151,8 @@ export abstract class BaseTask {
   }
 
   public get current () {
+    if (this._sync_task !== null)
+      return this._sync_task.current;
     return this._current;
   }
 
@@ -165,17 +187,8 @@ export abstract class BaseTask {
   }
 
   public present () {
-    if (this._sync_task !== null) {
-      this.progress_by_time = false;
-      this._start_time = 0;
-      this.task_id = this._sync_task.task_id;
-      this.state = this._sync_task.state;
-      this.completed = this._sync_task.completed;
-      this.current = this._sync_task.current;
-      this.total = this._sync_task.total;
-    }
-
-    if (this.progress_by_time
+    if (this._sync_task === null
+      && this.progress_by_time
       && this._start_time > 0
       && this.average_time > 0) {
       this.current = Math.min (
