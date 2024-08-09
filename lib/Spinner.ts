@@ -1,5 +1,5 @@
 import chalk from 'chalk';
-import { TaskState } from './BaseTask';
+import { color_by_state, TaskState } from './State';
 
 export class Spinner {
   private spinner_index = 0;
@@ -21,38 +21,27 @@ export class Spinner {
     this.spinner_index = (this.spinner_index + 1) % this.spinner_form.length;
   }
 
-  private present_failed () {
-    process.stderr.write (chalk.red ('✗ '));
-  }
-
-  private present_successful () {
-    process.stderr.write (chalk.green ('✓ '));
-  }
-
-  private present_skipped () {
-    process.stderr.write (chalk.yellow ('⦿ '));
-  }
-
-  private present_paused () {
-    process.stderr.write (chalk.gray ('⦿ '));
-  }
-
   public present (state: TaskState) {
+    let symbol = '';
     switch (state) {
       case 'failed':
-        this.present_failed ();
+        symbol = '✗';
         break;
       case 'successful':
-        this.present_successful ();
+        symbol = '✓';
         break;
       case 'skipped':
-        this.present_skipped ();
+        symbol = '⦿';
         break;
       case 'paused':
-        this.present_paused ();
+        symbol = '⦿';
         break;
       default:
-        this.present_running ();
+        break;
     }
+    if (symbol.length > 0)
+      process.stderr.write (`${color_by_state (state) (symbol)} `);
+    else
+      this.present_running ();
   }
 }

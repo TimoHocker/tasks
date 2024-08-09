@@ -36,14 +36,16 @@ async function mock_task (
     if (add % 3 === 0) {
       if (add > 0) {
         list.log ({
-          label:         `task ${add}`,
-          message:       `Progress Log: ${Math.round (task.progress * 100)}%
+          label:   `task ${add}`,
+          message: `Progress Log: ${Math.round (task.progress * 100)}%
   newline asd`,
           label_color:   chalk.blue,
           message_color: chalk.red
         });
       }
-      else { list.log (`Progress Log: ${Math.round (task.progress * 100)}%`); }
+      else {
+        list.log (`Progress Log: ${Math.round (task.progress * 100)}%`);
+      }
     }
     // eslint-disable-next-line no-await-in-loop
     await delay (1000);
@@ -121,8 +123,8 @@ const static_lh = (new TaskListHorizontal);
 static_lh.display_percentage = true;
 static_lh.label.value = 'Static Task';
 static_lh.label.length = 10;
-static_lh.tasks.push (new Task);
-static_lh.tasks.push (new Task);
+static_lh.tasks.push ((new Task));
+static_lh.tasks.push ((new Task));
 static_lh.tasks[0].current = 0;
 static_lh.tasks[0].total = 1;
 static_lh.tasks[1].current = 1;
@@ -177,38 +179,51 @@ async function main () {
 
   const list2 = (new TaskListVertical);
   list2.clear_completed = true;
-  let task1 = new TaskHorizontal;
+  let task1 = (new TaskHorizontal);
   task1.label.value = 'Task 1';
   task1.label.length = 10;
   list2.tasks.push (task1);
   list2.clear_completed = false;
-  let task2 = new TaskHorizontal;
+  let task2 = (new TaskHorizontal);
   task2.label.value = 'Task 2';
   task2.label.length = 10;
   list2.tasks.push (task2);
+  const summary = (new TaskListHorizontal);
+  list2.tasks.push (summary);
   list2.update ();
   const uncompleted = [
     task1,
     task2
   ];
+  summary.tasks.push (
+    ...uncompleted.map ((task) => {
+      const t = (new Task);
+      t.sync_task = task;
+      return t;
+    })
+  );
   for (let i = 0; i < 10; i++) {
     if (Math.random () > 0.5) {
       const task = uncompleted.shift ();
       assert (typeof task !== 'undefined', 'Task must be defined');
       task.completed = true;
+      task.state = 'successful';
+      task.progress = 1;
     }
 
     task2.progress = 0.5;
     task1 = task2;
-    task2 = new TaskHorizontal;
+    task2 = (new TaskHorizontal);
     uncompleted.push (task2);
+    const sumtask = (new Task);
+    sumtask.sync_task = task2;
+    summary.tasks.push (sumtask);
     task2.label.value = `Task ${i + 3}`;
     task2.label.length = 10;
     if (Math.random () > 0.2)
-      list2.tasks.push (task2);
-    else
       list2.tasks.unshift (task2);
-
+    else
+      list2.tasks.splice (list2.tasks.length - 1, 0, task2);
 
     // list2.log(list2.tasks.length.toString());
     await delay (1000);

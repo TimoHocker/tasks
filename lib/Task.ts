@@ -1,8 +1,9 @@
-import chalk from 'chalk';
+import { Chalk } from 'chalk';
 import { BaseTask } from './BaseTask';
+import { color_by_state } from './State';
 
 export class Task extends BaseTask {
-  public color = chalk.white;
+  public color: Chalk | null = null;
   public form = [
     '⠀',
     '⡀',
@@ -22,6 +23,7 @@ export class Task extends BaseTask {
       this.form.length - 1,
       Math.floor (this.progress * this.form.length)
     );
-    process.stderr.write (this.color (this.form[index]));
+    const color = this.color || color_by_state (this.state);
+    process.stderr.write (color (this.form[index]));
   }
 }

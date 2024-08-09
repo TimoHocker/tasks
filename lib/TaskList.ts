@@ -1,4 +1,5 @@
-import { BaseTask, ITask, TaskState } from './BaseTask';
+import { BaseTask, ITask } from './BaseTask';
+import { TaskState } from './State';
 
 export abstract class TaskList extends BaseTask {
   private _tasks: ITask[] = [];

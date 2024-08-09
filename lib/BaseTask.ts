@@ -1,8 +1,6 @@
 import assert from 'assert';
 import { time_store } from './TimeStore';
-
-export type TaskState = 'failed' | 'paused' | 'running'
-| 'skipped' | 'successful';
+import { TaskState } from './State';
 
 export interface ITask {
   completed: boolean;
@@ -23,6 +21,8 @@ export abstract class BaseTask {
   private _average_time = 0;
   private _start_time = 0;
   private _progress_by_time = false;
+  /* eslint-disable-next-line no-use-before-define */
+  private _sync_task: BaseTask | null = null;
 
   public present_completed = false;
 
@@ -32,6 +32,10 @@ export abstract class BaseTask {
 
   public set progress_by_time (value: boolean) {
     this._progress_by_time = value;
+  }
+
+  public set sync_task (value: BaseTask | null) {
+    this._sync_task = value;
   }
 
   public get state () {
@@ -149,7 +153,28 @@ export abstract class BaseTask {
     this._start_time = 0;
   }
 
+  public promise (promise: Promise<unknown>) {
+    promise.then (() => {
+      this.completed = true;
+      this.state = 'successful';
+    })
+      .catch (() => {
+        this.completed = true;
+        this.state = 'failed';
+      });
+  }
+
   public present () {
+    if (this._sync_task !== null) {
+      this.progress_by_time = false;
+      this._start_time = 0;
+      this.task_id = this._sync_task.task_id;
+      this.state = this._sync_task.state;
+      this.completed = this._sync_task.completed;
+      this.current = this._sync_task.current;
+      this.total = this._sync_task.total;
+    }
+
     if (this.progress_by_time
       && this._start_time > 0
       && this.average_time > 0) {
