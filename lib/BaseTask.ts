@@ -11,6 +11,7 @@ export interface ITask {
   current: number;
   total: number;
   previous_vertical_space: number;
+  was_presented: boolean;
   present(): OccupiedSpace;
 }
 
@@ -24,6 +25,7 @@ export abstract class BaseTask {
   private _start_time = 0;
   private _progress_by_time = false;
   private _previous_vertical_space = 0;
+  private _was_presented = false;
   /* eslint-disable-next-line no-use-before-define */
   private _sync_task: BaseTask | null = null;
 
@@ -31,6 +33,10 @@ export abstract class BaseTask {
 
   public get previous_vertical_space () {
     return this._previous_vertical_space;
+  }
+
+  public get was_presented () {
+    return this._was_presented;
   }
 
   public get progress_by_time () {
@@ -206,6 +212,9 @@ export abstract class BaseTask {
     }
 
     const space = this.do_present ();
+
+    this._was_presented = true;
+
     this._previous_vertical_space = space.height;
     return space;
   }

@@ -123,13 +123,16 @@ export class TaskListVertical extends TaskList {
     for (const task of this.tasks) {
       if (!task.present_completed)
         break;
+      if (!task.was_presented)
+        break;
       completed_space += task.previous_vertical_space + 1;
       completed_tasks++;
     }
-    const total_space = this.tasks.reduce (
-      (acc, task) => acc + task.previous_vertical_space + 1,
-      0
-    );
+    const total_space = this.tasks.filter ((t) => t.was_presented)
+      .reduce (
+        (acc, task) => acc + task.previous_vertical_space + 1,
+        0
+      );
 
     const available_space: number
       = typeof process.stdout.rows === 'number' && process.stdout.rows > 0
@@ -157,7 +160,7 @@ export class TaskListVertical extends TaskList {
     const used_space = new OccupiedSpace (0, 0);
     if (this.isTTY) {
       for (
-        let i = completed_tasks;
+        let i = has_logs ? 0 : completed_tasks;
         i < this.tasks.length;
         i++
       ) {
