@@ -1,12 +1,15 @@
 import { ITask } from './BaseTask';
 
 export type TaskProcess = (task: ITask,
-  next: () => void) => Promise<boolean | void> | boolean | void;
+  next: () => void,
+  logger: (...messages: string[]) => void
+) => Promise<boolean | void> | boolean | void;
 
 export class TaskSchedule {
   private _id: string;
   private _process: TaskProcess;
-  private _dependencies: string[] = [];
+  public dependencies: string[] = [];
+  public ready: () => boolean = () => true;
 
   public get id (): string {
     return this._id;
@@ -17,11 +20,15 @@ export class TaskSchedule {
     this._process = process;
   }
 
-  public add_dependency (id: string): void {
-    this._dependencies.push (id);
+  public run (
+    task: ITask,
+    next: () => void,
+    logger: (...messages: string[]) => void
+  ): Promise<boolean | void> {
+    return Promise.resolve (this._process (task, next, logger));
   }
 
   public check_dependencies (completed: string[]): boolean {
-    return this._dependencies.every ((dep) => completed.includes (dep));
+    return this.dependencies.every ((dep) => completed.includes (dep));
   }
 }
