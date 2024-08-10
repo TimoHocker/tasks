@@ -136,10 +136,15 @@ async function main () {
   console.log ('start line 2');
 
   await time_store.use_file (join (os.tmpdir (), 'tasks_time_store.json'));
+  time_store.set_fallback_to_average ();
 
   static_task1.task_id = 'task1';
   static_task1.progress_by_time = true;
   static_task1.start_timer ();
+
+  static_task2.task_id = 'task2';
+  static_task2.progress_by_time = true;
+  static_task2.start_timer ();
 
   list_vertical.update ();
 

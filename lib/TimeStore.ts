@@ -4,12 +4,32 @@ import { promises as fs } from 'fs';
 class TimeStore {
   private data: Record<string, number[]> = {};
   private file = '';
+  private fallback = 0;
 
   public get_avg_time (key: string) {
     const data = this.data[key];
     if (!data || data.length === 0)
-      return 0;
+      return this.fallback;
     return data.reduce ((acc, val) => acc + val, 0) / data.length;
+  }
+
+  public set fallback_time (time: number) {
+    this.fallback = time;
+  }
+
+  public set_fallback_to_average (task_ids: string[] = []): void {
+    this.fallback_time = 0;
+    let count = 0;
+    let total = 0;
+    const tasks = task_ids.length === 0 ? Object.keys (this.data) : task_ids;
+    for (const task of tasks) {
+      const time = this.get_avg_time (task);
+      if (time <= 0)
+        continue;
+      total += time;
+      count++;
+    }
+    this.fallback_time = total / count;
   }
 
   public async set_time (key: string, time: number): Promise<void> {
