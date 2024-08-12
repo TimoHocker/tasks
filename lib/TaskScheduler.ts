@@ -96,7 +96,7 @@ export class TaskScheduler {
       task.start_timer ();
       task.promise (startable.run (task, () => {
         this.completed.push (startable.id);
-      }, (...messages: string[]) => task_list.log (messages.join (' ')))
+      }, task_list.log)
         .catch ((error: unknown) => {
           task.stop_timer (false);
           this.failed.push (startable.id);
