@@ -47,6 +47,8 @@ export abstract class BaseTask {
 
   public set progress_by_time (value: boolean) {
     this._progress_by_time = value;
+    if (this.task_id.length > 0)
+      this.total = this.average_time;
   }
 
   public set sync_task (value: BaseTask | null) {
@@ -119,8 +121,11 @@ export abstract class BaseTask {
 
   public set task_id (value: string) {
     this._task_id = value;
-    if (value.length > 0)
+    if (value.length > 0) {
       this._average_time = time_store.get_avg_time (value);
+      if (this.progress_by_time)
+        this.total = this.average_time;
+    }
   }
 
   public get average_time (): number {
