@@ -6,7 +6,7 @@ import { TaskList } from './TaskList';
 export class TaskListHorizontal extends TaskList {
   public display_percentage = true;
   public display_spinner = true;
-  public horizontal_limit = (process.stderr.columns || 80) - 5;
+  public horizontal_limit = (process.stderr.columns || 80) - 10;
   private _label = (new TaskLabel);
 
   public get label () {
