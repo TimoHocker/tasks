@@ -8,7 +8,7 @@ class TimeStore {
 
   public get_avg_time (key: string) {
     const data = this.data[key];
-    if (!data || data.length === 0)
+    if (!Array.isArray(data) || data.length === 0)
       return this.fallback;
     return data.reduce ((acc, val) => acc + val, 0) / data.length;
   }
@@ -29,11 +29,13 @@ class TimeStore {
       total += time;
       count++;
     }
+    if (count === 0)
+      return;
     this.fallback_time = total / count;
   }
 
   public async set_time (key: string, time: number): Promise<void> {
-    if (!this.data[key])
+    if (!Array.isArray(this.data[key]))
       this.data[key] = [];
     this.data[key].push (time);
     if (this.data[key].length > 10)
