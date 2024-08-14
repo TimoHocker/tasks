@@ -25,14 +25,11 @@ export class TaskListVertical extends TaskList {
   }
 
   private print_logs () {
-    let count = 0;
-
     for (const entry of this.log_entries) {
       if (process.stdout.isTTY)
         process.stdout.write ('\u001b[K');
 
       entry.print ();
-      count++;
     }
 
     this.log_entries = [];
