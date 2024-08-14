@@ -68,14 +68,20 @@ export async function dynamic_test () {
     const task = new Task;
     summary.tasks.push (task);
     uncompleted.push (task);
-    task.progress = 0.5;
+    if (Math.random () > 0.5)
+      task.progress = Math.random ();
   }
   while (uncompleted.length > 0) {
-    const task = uncompleted.shift ();
+    const task = uncompleted[0];
     assert (typeof task !== 'undefined', 'Task must be defined');
-    task.completed = true;
-    task.progress = 1;
-    await delay (25);
+    if (task.progress > 0.9) {
+      task.completed = true;
+      task.progress = 1;
+      list_vertical.log (`${uncompleted.length} tasks left`);
+      uncompleted.shift ();
+    }
+    else { task.progress += 0.1; }
+    await delay (2);
   }
   await list_vertical.await_end ();
 }
