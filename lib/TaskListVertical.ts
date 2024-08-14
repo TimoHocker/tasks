@@ -28,7 +28,7 @@ export class TaskListVertical extends TaskList {
     let count = 0;
 
     for (const entry of this.log_entries) {
-      if (count <= this.previous_vertical_space && process.stdout.isTTY)
+      if (process.stdout.isTTY)
         process.stdout.write ('\u001b[K');
 
       entry.print ();
