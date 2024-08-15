@@ -194,13 +194,14 @@ export abstract class BaseTask {
   }
 
   public promise (promise: Promise<unknown>) {
-    promise.then (() => {
+    return promise.then (() => {
       this.completed = true;
       this.state = 'successful';
     })
-      .catch (() => {
+      .catch ((err) => {
         this.completed = true;
         this.state = 'failed';
+        throw err;
       });
   }
 

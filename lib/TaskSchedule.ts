@@ -1,6 +1,8 @@
 import { ITask } from './BaseTask';
+import { TaskHorizontal } from './TaskHorizontal';
+import { TaskLabel } from './TaskLabel';
 
-export type TaskProcess = (task: ITask,
+export type TaskProcess = (task: TaskHorizontal,
   next: () => void,
   logger: (...messages: string[]) => void
 ) => Promise<boolean | void> | boolean | void;
@@ -9,6 +11,7 @@ export class TaskSchedule {
   private _id: string;
   private _process: TaskProcess;
   public dependencies: string[] = [];
+  public progress_by_time = false;
   public ready: () => boolean = () => true;
 
   public get id (): string {
@@ -21,7 +24,7 @@ export class TaskSchedule {
   }
 
   public run (
-    task: ITask,
+    task: TaskHorizontal,
     next: () => void,
     logger: (...messages: string[]) => void
   ): Promise<boolean | void> {

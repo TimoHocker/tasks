@@ -6,6 +6,10 @@ export function delay (time: number) {
   return new Promise ((resolve) => setTimeout (resolve, time));
 }
 
+export function random_delay () {
+  return delay (Math.random () * 2000);
+}
+
 export async function mock_task (
   task: ITask,
   list: TaskListVertical,

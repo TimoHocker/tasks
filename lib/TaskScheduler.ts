@@ -10,6 +10,7 @@ export class TaskScheduler {
   public completed: string[] = [];
   public running: string[] = [];
   public failed: string[] = [];
+  public label = '';
 
   public on_failure: (task_id: string, error: unknown) => void
     = (task_id, error) => {
@@ -42,6 +43,8 @@ export class TaskScheduler {
 
     const summary = new TaskListHorizontal;
     task_list.tasks.push (summary);
+    summary.label.value = this.label;
+    summary.label.length = this.label.length;
 
     const summary_tasks: Record<string, Task> = {};
 
@@ -88,22 +91,25 @@ export class TaskScheduler {
       this.running.push (startable.id);
       const task = new TaskHorizontal;
       task.task_id = startable.id;
-      task.progress_by_time = true;
+      task.progress_by_time = startable.progress_by_time;
       task_list.tasks.splice (task_list.tasks.length - 1, 0, task);
       summary_tasks[startable.id].state = 'running';
       summary_tasks[startable.id].sync_task = task;
 
-      task.start_timer ();
+      if (startable.progress_by_time)
+        task.start_timer ();
       task.promise (startable.run (task, () => {
         this.completed.push (startable.id);
-      }, task_list.log)
+      }, task_list.log.bind (task_list))
         .catch ((error: unknown) => {
-          task.stop_timer (false);
+          if (startable.progress_by_time)
+            task.stop_timer (false);
           this.failed.push (startable.id);
           this.on_failure (startable.id, error);
         })
         .then (() => {
-          task.stop_timer (true);
+          if (startable.progress_by_time)
+            task.stop_timer (true);
           this.running.splice (this.running.indexOf (startable.id), 1);
           if (!this.completed.includes (startable.id))
             this.completed.push (startable.id);
