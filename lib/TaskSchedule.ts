@@ -11,6 +11,7 @@ export interface TaskScheduleSettings {
   dependencies?: string[];
   progress_by_time?: boolean;
   ready?: () => boolean;
+  label?: string;
 }
 
 export class TaskSchedule {
@@ -19,9 +20,14 @@ export class TaskSchedule {
   public dependencies: string[];
   public progress_by_time;
   public ready: () => boolean;
+  public _label: string;
 
   public get id (): string {
     return this._id;
+  }
+
+  public get label (): string {
+    return this._label || this._id;
   }
 
   constructor (settings: TaskScheduleSettings) {
@@ -30,6 +36,7 @@ export class TaskSchedule {
     this.dependencies = settings.dependencies || [];
     this.progress_by_time = settings.progress_by_time || false;
     this.ready = settings.ready || (() => true);
+    this._label = settings.label || '';
   }
 
   public run (

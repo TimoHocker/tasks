@@ -192,6 +192,7 @@ export class TaskScheduler {
       this._running.push (startable.id);
       const task = (new TaskHorizontal);
       task.task_id = startable.id;
+      task.label.value = startable.label;
       task.progress_by_time = startable.progress_by_time;
       this._task_list.tasks.splice (this._task_list.tasks.length - 1, 0, task);
       summary_tasks[startable.id].state = 'running';
@@ -211,7 +212,7 @@ export class TaskScheduler {
                 },
                 (...messages: string[]) => this._task_list!.log ({
                   message:     messages.join (' '),
-                  label:       startable.id,
+                  label:       startable.label,
                   label_color: color
                 })
               )
