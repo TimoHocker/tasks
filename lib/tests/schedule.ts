@@ -14,7 +14,7 @@ export async function run_schedule () {
   scheduler.label = 'Running Schedule';
   for (let i = 0; i < 10; i++) {
     scheduler.add ({
-      id:      'test_'+i,
+      id:      `test_${i}`,
       process: async (task, next, logger) => {
         task.label.value = `Task ${task.task_id}`;
         task.label.length = 10;

@@ -1,5 +1,5 @@
-/* eslint-disable max-classes-per-file */
-import assert from 'assert';
+/* eslint-disable-next-line max-len */
+/* eslint-disable max-classes-per-file, @typescript-eslint/no-non-null-assertion */
 import chalk, { Chalk } from 'chalk';
 import { LogEntry, LogEntrySettings } from './Logging';
 import { Task } from './Task';
