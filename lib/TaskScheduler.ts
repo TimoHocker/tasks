@@ -1,3 +1,4 @@
+/* eslint-disable max-classes-per-file */
 import { Task } from './Task';
 import { TaskHorizontal } from './TaskHorizontal';
 import { TaskListHorizontal } from './TaskListHorizontal';
@@ -122,13 +123,15 @@ export class TaskScheduler {
           break;
         }
         else {
-          const failed = schedule.dependencies.filter ((v) => this._failed.includes (v));
+          const failed = schedule.dependencies.filter (
+            (v) => this._failed.includes (v)
+          );
           if (failed.length > 0) {
             this._failed.push (schedule.id);
             this._queue.splice (i, 1);
             this.on_failure (
               schedule.id,
-              new ScheduleDependencyError(failed.join (', '))
+              new ScheduleDependencyError (failed.join (', '))
             );
           }
         }
@@ -169,8 +172,10 @@ export class TaskScheduler {
             if (startable.progress_by_time)
               await task.stop_timer (false);
             this._failed.push (startable.id);
-            this.on_failure (startable.id, new ScheduleExceptionError(`Task ${task.task_id} failed`,
-              {cause: error}));
+            this.on_failure (startable.id, new ScheduleExceptionError (
+              `Task ${task.task_id} failed`,
+              { cause: error }
+            ));
           }
 
           if (startable.progress_by_time)
