@@ -10,12 +10,15 @@ export abstract class ScheduleError extends Error {
 }
 
 export class ScheduleDependencyError extends ScheduleError {
+  public dependencies: string[];
+
   public get type (): 'dependency' | 'error' {
     return 'dependency';
   }
 
-  public constructor (message: string) {
-    super (`Dependency not met: ${message}`);
+  public constructor (dependencies: string[]) {
+    super (`Dependency not met: ${dependencies.join (', ')}`);
+    this.dependencies = dependencies;
   }
 }
 
@@ -131,7 +134,7 @@ export class TaskScheduler {
             this._queue.splice (i, 1);
             this.on_failure (
               schedule.id,
-              new ScheduleDependencyError (failed.join (', '))
+              new ScheduleDependencyError (failed)
             );
           }
         }
