@@ -1,7 +1,7 @@
 import os from 'os';
 import { join } from 'path';
 import chalk from 'chalk';
-import { TaskSchedule, TaskScheduler, time_store } from '../index';
+import { TaskScheduler, time_store } from '../index';
 import { random_delay } from './util';
 
 export async function run_schedule () {
@@ -13,9 +13,9 @@ export async function run_schedule () {
   const scheduler = new TaskScheduler;
   scheduler.label = 'Running Schedule';
   for (let i = 0; i < 10; i++) {
-    const schedule = new TaskSchedule (
-      i.toString (),
-      async (task, next, logger) => {
+    scheduler.add ({
+      id:      i.toString (),
+      process: async (task, next, logger) => {
         task.label.value = `Task ${task.task_id}`;
         task.label.length = 10;
         logger (`task ${task.task_id} starting`);
@@ -30,10 +30,9 @@ export async function run_schedule () {
         }
         await random_delay ();
         logger (`task ${task.task_id} finishing`);
-      }
-    );
-    schedule.progress_by_time = true;
-    scheduler.schedules.push (schedule);
+      },
+      progress_by_time: true
+    });
   }
   scheduler.schedules[0].dependencies = [
     '1',
