@@ -14,10 +14,10 @@ class TimeStore {
     sublog (`Getting average time for ${key}`);
     const data = this.data[key];
     if (!Array.isArray (data) || data.length === 0) {
-    sublog (`No data found for ${key}, falling back to ${this.fallback}`);
+      sublog (`No data found for ${key}, falling back to ${this.fallback}`);
       return this.fallback;
     }
-    const result =  data.reduce ((acc, val) => acc + val, 0) / data.length;
+    const result = data.reduce ((acc, val) => acc + val, 0) / data.length;
     sublog (`Average time for ${key}: ${result}`);
     return result;
   }
@@ -42,7 +42,7 @@ class TimeStore {
       total += time;
       count++;
     }
-    if (count === 0){
+    if (count === 0) {
       sublog ('No tasks found');
       return;
     }
@@ -67,7 +67,7 @@ class TimeStore {
       sublog ('No file set');
       return;
     }
-    sublog (`Saving ${Object.keys(this.data).length} entries to ${this.file}`);
+    sublog (`Saving ${Object.keys (this.data).length} entries to ${this.file}`);
     await fs.writeFile (this.file, JSON.stringify (this.data));
   }
 
@@ -77,10 +77,10 @@ class TimeStore {
     sublog (`Loading data from ${this.file}`);
     try {
       this.data = JSON.parse (await fs.readFile (this.file, 'utf8'));
-      sublog (`Loaded ${Object.keys(this.data).length} entries`);
+      sublog (`Loaded ${Object.keys (this.data).length} entries`);
     }
     catch {
-      sublog('loading failed, fallback to empty data');
+      sublog ('loading failed, fallback to empty data');
       this.data = {};
     }
   }

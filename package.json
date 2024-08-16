@@ -1,6 +1,6 @@
 {
   "name": "@sapphirecode/tasks",
-  "version": "2.0.15",
+  "version": "2.1.0-alpha.1",
   "main": "dist/index.js",
   "author": {
     "name": "Timo Hocker",
