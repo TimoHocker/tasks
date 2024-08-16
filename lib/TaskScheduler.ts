@@ -4,6 +4,26 @@ import { TaskListHorizontal } from './TaskListHorizontal';
 import { TaskListVertical } from './TaskListVertical';
 import { TaskSchedule, TaskScheduleSettings } from './TaskSchedule';
 
+export abstract class ScheduleError extends Error {
+  public abstract type: 'dependency' | 'error';
+}
+
+export class ScheduleDependencyError extends ScheduleError {
+  public get type (): 'dependency' | 'error' {
+    return 'dependency';
+  }
+
+  public constructor (message: string) {
+    super (`Dependency not met: ${message}`);
+  }
+}
+
+export class ScheduleExceptionError extends ScheduleError {
+  public get type (): 'dependency' | 'error' {
+    return 'error';
+  }
+}
+
 export class TaskScheduler {
   private _queue: TaskSchedule[] = [];
   private _completed: string[] = [];
@@ -38,11 +58,11 @@ export class TaskScheduler {
     this.schedules.push (new TaskSchedule (settings));
   }
 
-  public on_failure: (task_id: string, error: unknown) => void = (
+  public on_failure: (task_id: string, error: ScheduleError) => void = (
     task_id,
     error
   ) => {
-    throw new Error (`Task ${task_id} failed: ${error}`);
+    throw error;
   };
 
   private validate_dependencies (): void {
@@ -102,15 +122,13 @@ export class TaskScheduler {
           break;
         }
         else {
-          const failed = schedule.dependencies.filter (
-            (v) => this._failed.includes (v)
-          );
+          const failed = schedule.dependencies.filter ((v) => this._failed.includes (v));
           if (failed.length > 0) {
             this._failed.push (schedule.id);
             this._queue.splice (i, 1);
             this.on_failure (
               schedule.id,
-              `Dependencies failed: ${failed.join (', ')}`
+              new ScheduleDependencyError(failed.join (', '))
             );
           }
         }
@@ -151,7 +169,8 @@ export class TaskScheduler {
             if (startable.progress_by_time)
               await task.stop_timer (false);
             this._failed.push (startable.id);
-            this.on_failure (startable.id, error);
+            this.on_failure (startable.id, new ScheduleExceptionError(`Task ${task.task_id} failed`,
+              {cause: error}));
           }
 
           if (startable.progress_by_time)
