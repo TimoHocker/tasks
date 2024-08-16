@@ -1,5 +1,6 @@
 /* eslint-disable max-classes-per-file */
 import assert from 'assert';
+import chalk, { Chalk } from 'chalk';
 import { LogEntry, LogEntrySettings } from './Logging';
 import { Task } from './Task';
 import { TaskHorizontal } from './TaskHorizontal';
@@ -41,6 +42,15 @@ export class TaskScheduler {
   public schedules: TaskSchedule[] = [];
   public label: string;
   public max_parallel = 16;
+  public colors: Chalk[] = [
+    chalk.red,
+    chalk.green,
+    chalk.yellow,
+    chalk.blue,
+    chalk.magenta,
+    chalk.cyan,
+    chalk.white
+  ];
 
   public get queue (): string[] {
     return this._queue.map ((v) => v.id);
@@ -114,6 +124,13 @@ export class TaskScheduler {
     this._task_list = (new TaskListVertical);
     this._task_list.clear_completed = true;
 
+    let color_index = 0;
+    const get_color = () => {
+      const color = this.colors[color_index];
+      color_index = (color_index + 1) % this.colors.length;
+      return color;
+    };
+
     const summary = (new TaskListHorizontal);
     this._task_list.tasks.push (summary);
     summary.label.value = this.label;
@@ -184,15 +201,19 @@ export class TaskScheduler {
         task.start_timer ();
       this._promises.push (
         (async () => {
+          const color = get_color ();
           try {
-            assert (this._task_list !== null);
             await task.promise (
               startable.run (
                 task,
                 () => {
                   this._completed.push (startable.id);
                 },
-                this._task_list.log.bind (this._task_list)
+                (...messages: string[]) => this._task_list!.log ({
+                  message:     messages.join (' '),
+                  label:       startable.id,
+                  label_color: color
+                })
               )
             );
           }

@@ -14,7 +14,7 @@ export async function run_schedule () {
   scheduler.label = 'Running Schedule';
   for (let i = 0; i < 10; i++) {
     scheduler.add ({
-      id:      i.toString (),
+      id:      'test_'+i,
       process: async (task, next, logger) => {
         task.label.value = `Task ${task.task_id}`;
         task.label.length = 10;
@@ -35,13 +35,13 @@ export async function run_schedule () {
     });
   }
   scheduler.schedules[0].dependencies = [
-    '1',
-    '5'
+    'test_1',
+    'test_5'
   ];
   scheduler.schedules[1].dependencies = [
-    '2',
-    '3'
+    'test_2',
+    'test_3'
   ];
-  scheduler.schedules[2].dependencies = [ '4' ];
+  scheduler.schedules[2].dependencies = [ 'test_4' ];
   await scheduler.run ();
 }
