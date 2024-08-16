@@ -2,6 +2,9 @@ import assert from 'assert';
 import { time_store } from './TimeStore';
 import { TaskState } from './State';
 import { OccupiedSpace } from './Space';
+import debug from 'debug';
+
+const log = debug ('sapphirecode:tasks:BaseTask');
 
 export interface ITask {
   completed: boolean;
@@ -179,13 +182,19 @@ export abstract class BaseTask {
   }
 
   public start_timer () {
+    const sublog = log.extend ('start_timer');
     assert (this._task_id.length > 0, 'Task ID must be set');
-    this._start_time = Date.now ();
+    const timestamp = new Date;
+    sublog (`Starting timer for ${this._task_id} at ${timestamp.toISOString()}`);
+    this._start_time = timestamp.getTime();
   }
 
   public async stop_timer (save: boolean): Promise<void> {
+    const sublog = log.extend ('stop_timer');
     assert (this._task_id.length > 0, 'Task ID must be set');
-    const time = Date.now () - this._start_time;
+    const timestamp = new Date;
+    sublog (`Stopping timer for ${this._task_id} at ${timestamp.toISOString()}; save: ${save}`);
+    const time = timestamp.getTime() - this._start_time;
     if (save)
       await time_store.set_time (this._task_id, time);
 

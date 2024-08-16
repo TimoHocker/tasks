@@ -1,6 +1,4 @@
-import { ITask } from './BaseTask';
 import { TaskHorizontal } from './TaskHorizontal';
-import { TaskLabel } from './TaskLabel';
 
 export type TaskProcess = (task: TaskHorizontal,
   next: () => void,

@@ -10,20 +10,24 @@ export class TaskScheduler {
   public completed: string[] = [];
   public running: string[] = [];
   public failed: string[] = [];
+  public promises: Promise<void>[] = [];
   public label = '';
 
-  public on_failure: (task_id: string, error: unknown) => void
-    = (task_id, error) => {
-      throw new Error (`Task ${task_id} failed: ${error}`);
-    };
+  public on_failure: (task_id: string, error: unknown) => void = (
+    task_id,
+    error
+  ) => {
+    throw new Error (`Task ${task_id} failed: ${error}`);
+  };
 
   private validate_dependencies (): void {
     const available_dependencies = this.schedules.map ((v) => v.id);
     for (const schedule of this.schedules) {
       for (const dep of schedule.dependencies) {
         if (!available_dependencies.includes (dep)) {
-          throw new Error (`Dependency ${dep
-          } not found for task ${schedule.id}`);
+          throw new Error (
+            `Dependency ${dep} not found for task ${schedule.id}`
+          );
         }
       }
     }
@@ -38,10 +42,10 @@ export class TaskScheduler {
     this.completed = [];
     this.failed = [];
 
-    const task_list = new TaskListVertical;
+    const task_list = (new TaskListVertical);
     task_list.clear_completed = true;
 
-    const summary = new TaskListHorizontal;
+    const summary = (new TaskListHorizontal);
     task_list.tasks.push (summary);
     summary.label.value = this.label;
     summary.label.length = this.label.length;
@@ -49,7 +53,7 @@ export class TaskScheduler {
     const summary_tasks: Record<string, Task> = {};
 
     for (const schedule of this.schedules) {
-      const task = new Task;
+      const task = (new Task);
       summary.tasks.push (task);
       summary_tasks[schedule.id] = task;
       task.state = 'paused';
@@ -71,10 +75,12 @@ export class TaskScheduler {
           this.queue.splice (i, 1);
           break;
         }
-        else if (schedule.check_dependencies ([
-          ...this.completed,
-          ...this.failed
-        ])) {
+        else if (
+          schedule.check_dependencies ([
+            ...this.completed,
+            ...this.failed
+          ])
+        ) {
           this.failed.push (schedule.id);
           this.queue.splice (i, 1);
         }
@@ -89,7 +95,7 @@ export class TaskScheduler {
       }
 
       this.running.push (startable.id);
-      const task = new TaskHorizontal;
+      const task = (new TaskHorizontal);
       task.task_id = startable.id;
       task.progress_by_time = startable.progress_by_time;
       task_list.tasks.splice (task_list.tasks.length - 1, 0, task);
@@ -98,24 +104,37 @@ export class TaskScheduler {
 
       if (startable.progress_by_time)
         task.start_timer ();
-      task.promise (startable.run (task, () => {
-        this.completed.push (startable.id);
-      }, task_list.log.bind (task_list))
-        .catch ((error: unknown) => {
+      this.promises.push (
+        (async () => {
+          try {
+            await task.promise (
+              startable.run (
+                task,
+                () => {
+                  this.completed.push (startable.id);
+                },
+                task_list.log.bind (task_list)
+              )
+            );
+          }
+          catch (error) {
+            if (startable.progress_by_time)
+              await task.stop_timer (false);
+            this.failed.push (startable.id);
+            this.on_failure (startable.id, error);
+          }
+
           if (startable.progress_by_time)
-            task.stop_timer (false);
-          this.failed.push (startable.id);
-          this.on_failure (startable.id, error);
-        })
-        .then (() => {
-          if (startable.progress_by_time)
-            task.stop_timer (true);
+            await task.stop_timer (true);
           this.running.splice (this.running.indexOf (startable.id), 1);
           if (!this.completed.includes (startable.id))
             this.completed.push (startable.id);
-        }));
+        }) ()
+      );
     }
 
+    await Promise.all (this.promises);
+    this.promises = [];
     await task_list.await_end ();
   }
 }

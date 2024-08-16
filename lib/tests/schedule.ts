@@ -19,16 +19,20 @@ export async function run_schedule () {
         task.label.value = `Task ${task.task_id}`;
         task.label.length = 10;
         logger (`task ${task.task_id} starting`);
+        logger (`task ${task.task_id} total: ${task.total
+        } time: ${task.remaining_time_formatted} avg: ${task.average_time}`);
         await random_delay ();
         if (Math.random () > 0.5) {
           logger (`task ${task.task_id} cleaning up`);
           task.color = chalk.green;
+          /* eslint-disable-next-line callback-return */
           next ();
         }
         await random_delay ();
         logger (`task ${task.task_id} finishing`);
       }
     );
+    schedule.progress_by_time = true;
     scheduler.schedules.push (schedule);
   }
   scheduler.schedules[0].dependencies = [

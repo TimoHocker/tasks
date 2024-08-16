@@ -1,5 +1,8 @@
 import assert from 'assert';
 import { promises as fs } from 'fs';
+import debug from 'debug';
+
+const log = debug ('sapphirecode:tasks:TimeStore');
 
 class TimeStore {
   private data: Record<string, number[]> = {};
@@ -7,17 +10,27 @@ class TimeStore {
   private fallback = 0;
 
   public get_avg_time (key: string) {
+    const sublog = log.extend ('get_avg_time');
+    sublog (`Getting average time for ${key}`);
     const data = this.data[key];
-    if (!Array.isArray (data) || data.length === 0)
+    if (!Array.isArray (data) || data.length === 0) {
+    sublog (`No data found for ${key}, falling back to ${this.fallback}`);
       return this.fallback;
-    return data.reduce ((acc, val) => acc + val, 0) / data.length;
+    }
+    const result =  data.reduce ((acc, val) => acc + val, 0) / data.length;
+    sublog (`Average time for ${key}: ${result}`);
+    return result;
   }
 
   public set fallback_time (time: number) {
+    const sublog = log.extend ('set_fallback_time');
+    sublog (`Setting fallback time to ${time}`);
     this.fallback = time;
   }
 
   public set_fallback_to_average (task_ids: string[] = []): void {
+    const sublog = log.extend ('set_fallback_to_average');
+    sublog ('Setting fallback time to average');
     this.fallback_time = 0;
     let count = 0;
     let total = 0;
@@ -29,12 +42,17 @@ class TimeStore {
       total += time;
       count++;
     }
-    if (count === 0)
+    if (count === 0){
+      sublog ('No tasks found');
       return;
+    }
     this.fallback_time = total / count;
+    sublog (`Fallback time set to ${this.fallback}`);
   }
 
   public async set_time (key: string, time: number): Promise<void> {
+    const sublog = log.extend ('set_time');
+    sublog (`Adding time for ${key}: ${time}`);
     if (!Array.isArray (this.data[key]))
       this.data[key] = [];
     this.data[key].push (time);
@@ -44,17 +62,25 @@ class TimeStore {
   }
 
   private async save (): Promise<void> {
-    if (this.file.length === 0)
+    const sublog = log.extend ('save');
+    if (this.file.length === 0) {
+      sublog ('No file set');
       return;
+    }
+    sublog (`Saving ${Object.keys(this.data).length} entries to ${this.file}`);
     await fs.writeFile (this.file, JSON.stringify (this.data));
   }
 
   private async load (): Promise<void> {
+    const sublog = log.extend ('load');
     assert (this.file.length > 0, 'File must be set');
+    sublog (`Loading data from ${this.file}`);
     try {
       this.data = JSON.parse (await fs.readFile (this.file, 'utf8'));
+      sublog (`Loaded ${Object.keys(this.data).length} entries`);
     }
     catch {
+      sublog('loading failed, fallback to empty data');
       this.data = {};
     }
   }
