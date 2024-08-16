@@ -1,4 +1,6 @@
 /* eslint-disable max-classes-per-file */
+import assert from 'assert';
+import { LogEntry, LogEntrySettings } from './Logging';
 import { Task } from './Task';
 import { TaskHorizontal } from './TaskHorizontal';
 import { TaskListHorizontal } from './TaskListHorizontal';
@@ -34,6 +36,7 @@ export class TaskScheduler {
   private _running: string[] = [];
   private _failed: string[] = [];
   private _promises: Promise<void>[] = [];
+  private _task_list: TaskListVertical | null = null;
 
   public schedules: TaskSchedule[] = [];
   public label: string;
@@ -60,6 +63,21 @@ export class TaskScheduler {
 
   public add (settings: TaskScheduleSettings) {
     this.schedules.push (new TaskSchedule (settings));
+  }
+
+  public add_schedule (schedule: TaskSchedule) {
+    this.schedules.push (schedule);
+  }
+
+  public log (message: LogEntrySettings | string) {
+    if (this._task_list) {
+      this._task_list.log (message);
+      return;
+    }
+    const entry = new LogEntry (typeof message === 'string'
+      ? { message }
+      : message);
+    entry.print ();
   }
 
   public on_failure: (task_id: string, error: ScheduleError) => void = (
@@ -92,11 +110,11 @@ export class TaskScheduler {
     this._failed = [];
     this._promises = [];
 
-    const task_list = (new TaskListVertical);
-    task_list.clear_completed = true;
+    this._task_list = (new TaskListVertical);
+    this._task_list.clear_completed = true;
 
     const summary = (new TaskListHorizontal);
-    task_list.tasks.push (summary);
+    this._task_list.tasks.push (summary);
     summary.label.value = this.label;
     summary.label.length = this.label.length;
 
@@ -109,7 +127,7 @@ export class TaskScheduler {
       task.state = 'paused';
     }
 
-    task_list.update ();
+    this._task_list.update ();
 
     while (this._queue.length > 0) {
       let startable: TaskSchedule | null = null;
@@ -152,7 +170,7 @@ export class TaskScheduler {
       const task = (new TaskHorizontal);
       task.task_id = startable.id;
       task.progress_by_time = startable.progress_by_time;
-      task_list.tasks.splice (task_list.tasks.length - 1, 0, task);
+      this._task_list.tasks.splice (this._task_list.tasks.length - 1, 0, task);
       summary_tasks[startable.id].state = 'running';
       summary_tasks[startable.id].sync_task = task;
 
@@ -161,13 +179,14 @@ export class TaskScheduler {
       this._promises.push (
         (async () => {
           try {
+            assert (this._task_list !== null);
             await task.promise (
               startable.run (
                 task,
                 () => {
                   this._completed.push (startable.id);
                 },
-                task_list.log.bind (task_list)
+                this._task_list.log.bind (this._task_list)
               )
             );
           }
@@ -192,6 +211,7 @@ export class TaskScheduler {
 
     await Promise.all (this._promises);
     this._promises = [];
-    await task_list.await_end ();
+    await this._task_list.await_end ();
+    this._task_list = null;
   }
 }
