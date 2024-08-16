@@ -4,11 +4,11 @@ import { TaskListVertical } from './TaskListVertical';
 import { TaskHorizontal } from './TaskHorizontal';
 import { time_store } from './TimeStore';
 import { ITask, BaseTask } from './BaseTask';
-import { TaskSchedule } from './TaskSchedule';
+import { TaskSchedule, TaskScheduleSettings } from './TaskSchedule';
 import { TaskScheduler } from './TaskScheduler';
 
 export {
   Task, TaskListHorizontal, ITask, BaseTask,
   TaskListVertical, TaskHorizontal, time_store,
-  TaskSchedule, TaskScheduler
+  TaskSchedule, TaskScheduler, TaskScheduleSettings
 };

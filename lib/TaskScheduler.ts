@@ -40,6 +40,7 @@ export class TaskScheduler {
 
   public schedules: TaskSchedule[] = [];
   public label: string;
+  public max_parallel = 16;
 
   public get queue (): string[] {
     return this._queue.map ((v) => v.id);
@@ -133,6 +134,11 @@ export class TaskScheduler {
       let startable: TaskSchedule | null = null;
       let waiting = false;
       for (let i = this._queue.length - 1; i >= 0; i--) {
+        if (this._running.length >= this.max_parallel) {
+          waiting = true;
+          break;
+        }
+
         const schedule = this._queue[i];
         if (schedule.check_dependencies (this._completed)) {
           if (!schedule.ready ()) {
@@ -158,7 +164,7 @@ export class TaskScheduler {
         }
       }
       if (startable === null) {
-        if (this._running.length === 0 && !waiting)
+        if (!waiting && this._running.length === 0)
           throw new Error ('Circular dependency detected');
 
         // eslint-disable-next-line no-await-in-loop
