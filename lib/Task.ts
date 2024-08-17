@@ -1,10 +1,7 @@
-import { Chalk } from 'chalk';
-import { color_by_state } from './State';
 import { OccupiedSpace } from './Space';
-import { BaseTask } from './BaseTask';
+import { StandaloneTask } from './StandaloneTask';
 
-export class Task extends BaseTask {
-  public color: Chalk | null = null;
+export class Task extends StandaloneTask {
   public form = [
     '⠀',
     '⡀',
@@ -24,8 +21,7 @@ export class Task extends BaseTask {
       this.form.length - 1,
       Math.floor (this.progress * this.form.length)
     );
-    const color = this.color || color_by_state (this.state);
-    process.stderr.write (color (this.form[index]));
+    process.stderr.write (this.color (this.form[index]));
     return new OccupiedSpace (1, 0);
   }
 }

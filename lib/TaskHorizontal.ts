@@ -1,11 +1,10 @@
 /* eslint-disable max-statements */
-import chalk from 'chalk';
 import { TaskLabel } from './TaskLabel';
 import { Spinner } from './Spinner';
-import { BaseTask } from './BaseTask';
 import { OccupiedSpace } from './Space';
+import { StandaloneTask } from './StandaloneTask';
 
-export class TaskHorizontal extends BaseTask {
+export class TaskHorizontal extends StandaloneTask {
   public length = 10;
   public display_percentage = true;
   public display_spinner = true;
@@ -19,7 +18,6 @@ export class TaskHorizontal extends BaseTask {
 
   private spinner = (new Spinner);
 
-  public color = chalk.white;
   public form = [
     '⡇',
     '⣿'

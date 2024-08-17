@@ -3,7 +3,7 @@ import chalk from 'chalk';
 import { ITask, TaskListVertical } from '../index';
 
 export function delay (time: number) {
-  return new Promise ((resolve) => setTimeout (resolve, time / 10));
+  return new Promise ((resolve) => setTimeout (resolve, time));
 }
 
 export function random_delay () {

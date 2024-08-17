@@ -1,7 +1,7 @@
 /* eslint-disable max-lines-per-function, no-await-in-loop, max-statements */
 import assert from 'assert';
 import {
-  BaseTask, Task, TaskHorizontal,
+  Task, TaskHorizontal, StandaloneTask,
   TaskListHorizontal, TaskListVertical
 } from '../index';
 import { delay } from './util';
@@ -26,7 +26,7 @@ export async function dynamic_test () {
 
   list_vertical.update ();
 
-  const uncompleted: BaseTask[] = [
+  const uncompleted: StandaloneTask[] = [
     task1,
     task2
   ];
