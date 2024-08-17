@@ -125,21 +125,20 @@ export class TaskListVertical extends TaskList {
       this.print_logs ();
 
     const used_space = new OccupiedSpace (0, 0);
-    if (this.isTTY) {
-      for (
-        let i = has_logs ? 0 : completed_tasks;
-        i < this.tasks.length;
-        i++
-      ) {
-        used_space.add (this.tasks[i].present ());
-        process.stderr.write ('\u001b[K\n');
-        if (used_space.height >= available_space)
-          break;
-      }
-    }
-    else {
-      for (const task of this.tasks)
-        task.present_completed = task.completed;
+    for (
+      let i = has_logs ? 0 : completed_tasks;
+      i < this.tasks.length;
+      i++
+    ) {
+      if (
+        !this.isTTY
+        && !(this.tasks[i].completed && !this.tasks[i].present_completed)
+      )
+        continue;
+      used_space.add (this.tasks[i].present ());
+      process.stderr.write (`${this.isTTY ? '\u001b[K' : ''}\n`);
+      if (this.isTTY && used_space.height >= available_space)
+        break;
     }
 
     if (this.clear_completed) {
