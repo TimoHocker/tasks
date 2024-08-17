@@ -1,6 +1,6 @@
 # @sapphirecode/tasks
 
-version: 2.0.0
+version: 2.1.0
 
 Progress displays for large amounts of tasks
 
@@ -63,6 +63,7 @@ const hz_task = new TaskHorizontal;
 hz_task.task_id = 'test_task'; // Task id is used to store the average task time.
 hz_task.label.value = "Single Task";
 hz_task.label.length = 12;
+hz_task.progress_by_time = true;
 list.tasks.push (hz_task);
 hz_task.start_timer(); // start the timer to measure the task time, also necessary to display the estimated time remaining
 
@@ -75,6 +76,58 @@ mock_task (hz_task, list).then(async () => await hz_task.stop_timer(true));
 list.update ();
 
 await list.await_end (); // await the completion of all tasks
+```
+
+### Scheduled Tasks
+
+Scheduled tasks will automatically create a progress bar for each task and a summary at the bottom of the console.
+Dependencies are automatically managed and tasks can run in parallel.
+
+```typescript
+const scheduler = new TaskScheduler;
+scheduler.label = 'Scheduled Tasks';
+// optional maximum number of parallel tasks (default: 16)
+scheduler.max_parallel = 2;
+
+// create a list of tasks with dependencies
+scheduler.add({
+  id: 'task1',
+  label: 'Task 1',
+  process: async (task, next, logger) => {
+    logger ('Task 1 started');
+    await new Promise ((resolve) => setTimeout (resolve, 1000));
+    logger ('Task 1 cleaning up');
+    // when calling next, all dependent tasks can be started while the current one is doing cleanup jobs
+    next ();
+    await new Promise ((resolve) => setTimeout (resolve, 500));
+    logger ('Task 1 finished');
+  },
+  progress_by_time: true,
+});
+scheduler.add({
+  id: 'task2',
+  label: 'Task 2',
+  process: async (task, next, logger) => {
+    logger ('Task 2 started');
+    await new Promise ((resolve) => setTimeout (resolve, 500));
+    logger ('Task 2 finished');
+  },
+  progress_by_time: true,
+});
+scheduler.add({
+  id: 'task3',
+  label: 'Task 3',
+  process: async (task, next, logger) => {
+    logger ('Task 3 started');
+    await new Promise ((resolve) => setTimeout (resolve, 500));
+    logger ('Task 3 finished');
+    task.completed = true;
+  },
+  dependencies: ['task1', 'task2'], // task 3 will only start, once task 1 and 2 are completed
+  progress_by_time: true,
+});
+
+await scheduler.run (); // start the scheduler
 ```
 
 ## License

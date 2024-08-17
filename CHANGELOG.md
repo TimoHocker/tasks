@@ -1,5 +1,9 @@
 # Changelog
 
+## 2.1.0
+
+- Add task scheduling
+
 ## 2.0.0
 
 - BREAKING: task labels are now a separate object and can be changed with
