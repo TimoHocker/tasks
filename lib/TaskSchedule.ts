@@ -2,7 +2,8 @@ import { TaskHorizontal } from './TaskHorizontal';
 
 export type TaskProcess = (task: TaskHorizontal,
   next: () => void,
-  logger: (...messages: string[]) => void
+  logger: (...messages: string[]) => void,
+  abort_signal: AbortSignal
 ) => Promise<boolean | void> | boolean | void;
 
 export interface TaskScheduleSettings {
@@ -17,10 +18,12 @@ export interface TaskScheduleSettings {
 export class TaskSchedule {
   private _id: string;
   private _process: TaskProcess;
+  private _label: string;
+  private _abort_controller: AbortController;
+  private _task: TaskHorizontal;
   public dependencies: string[];
   public progress_by_time;
   public ready: () => boolean;
-  public _label: string;
 
   public get id (): string {
     return this._id;
@@ -30,6 +33,14 @@ export class TaskSchedule {
     return this._label || this._id;
   }
 
+  public get abort_controller (): AbortController {
+    return this._abort_controller;
+  }
+
+  public get task (): TaskHorizontal {
+    return this._task;
+  }
+
   constructor (settings: TaskScheduleSettings) {
     this._id = settings.id;
     this._process = settings.process;
@@ -37,14 +48,24 @@ export class TaskSchedule {
     this.progress_by_time = settings.progress_by_time || false;
     this.ready = settings.ready || (() => true);
     this._label = settings.label || '';
+    this._abort_controller = new AbortController;
+
+    this._task = new TaskHorizontal;
+    this._task.task_id = this._id;
+    this._task.label.value = this._label;
+    this._task.progress_by_time = this.progress_by_time;
   }
 
   public run (
-    task: TaskHorizontal,
     next: () => void,
     logger: (...messages: string[]) => void
   ): Promise<boolean | void> {
-    return Promise.resolve (this._process (task, next, logger));
+    return Promise.resolve (this._process (
+      this.task,
+      next,
+      logger,
+      this.abort_controller.signal
+    ));
   }
 
   public check_dependencies (completed: string[]): boolean {

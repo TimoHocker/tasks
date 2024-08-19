@@ -20,6 +20,10 @@ export async function run_schedule () {
         logger (`task ${task.task_id} total: ${task.total
         } time: ${task.remaining_time_formatted} avg: ${task.average_time}`);
         await random_delay ();
+        if (i === 5) {
+          logger (`task ${task.task_id} failing`);
+          throw new Error ('task failed');
+        }
         if (Math.random () > 0.5) {
           logger (`task ${task.task_id} cleaning up`);
           task.color = chalk.cyan;

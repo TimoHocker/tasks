@@ -142,9 +142,8 @@ export class TaskScheduler {
       const task = (new Task);
       summary.tasks.push (task);
       summary_tasks[schedule.id] = task;
-      task.state = 'paused';
-      task.task_id = schedule.id;
-      task.progress_by_time = schedule.progress_by_time;
+      task.sync_task = schedule.task;
+      schedule.task.state = 'paused';
     }
 
     this._task_list.update ();
@@ -192,23 +191,21 @@ export class TaskScheduler {
       }
 
       this._running.push (startable.id);
-      const task = (new TaskHorizontal);
-      task.task_id = startable.id;
-      task.label.value = startable.label;
-      task.progress_by_time = startable.progress_by_time;
-      this._task_list.tasks.splice (this._task_list.tasks.length - 1, 0, task);
-      summary_tasks[startable.id].state = 'running';
-      summary_tasks[startable.id].sync_task = task;
+      this._task_list.tasks.splice (
+        this._task_list.tasks.length - 1,
+        0,
+        startable.task
+      );
 
       if (startable.progress_by_time)
-        task.start_timer ();
+        startable.task.start_timer ();
       this._promises.push (
         (async () => {
           const color = get_color ();
+          startable.task.state = 'running';
           try {
-            await task.promise (
+            await startable.task.promise (
               startable.run (
-                task,
                 () => {
                   this._completed.push (startable.id);
                 },
@@ -222,16 +219,16 @@ export class TaskScheduler {
           }
           catch (error) {
             if (startable.progress_by_time)
-              await task.stop_timer (false);
+              await startable.task.stop_timer (false);
             this._failed.push (startable.id);
             this.on_failure (startable.id, new ScheduleExceptionError (
-              `Task ${task.task_id} failed`,
+              `Task ${startable.id} failed`,
               { cause: error }
             ));
           }
 
           if (startable.progress_by_time)
-            await task.stop_timer (true);
+            await startable.task.stop_timer (true);
           this._running.splice (this._running.indexOf (startable.id), 1);
           if (!this._completed.includes (startable.id))
             this._completed.push (startable.id);
