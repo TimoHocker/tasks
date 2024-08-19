@@ -143,6 +143,8 @@ export class TaskScheduler {
       summary.tasks.push (task);
       summary_tasks[schedule.id] = task;
       task.state = 'paused';
+      task.task_id = schedule.id;
+      task.progress_by_time = schedule.progress_by_time;
     }
 
     this._task_list.update ();
