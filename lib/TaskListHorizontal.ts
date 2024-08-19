@@ -15,11 +15,24 @@ export class TaskListHorizontal extends TaskList {
 
   private spinner = (new Spinner);
 
+  protected do_present_subtasks (space: OccupiedSpace) {
+    for (const task of this.tasks) {
+      if (space.width > this.horizontal_limit) {
+        process.stderr.write ('\n  ');
+        space.width = 2;
+        space.height++;
+      }
+      space.add (task.present ());
+    }
+  }
+
   protected do_present (): OccupiedSpace {
     const space = new OccupiedSpace (0, 0);
     if (this.completed) {
       this.spinner.present (this.state);
       this.label.present (true);
+      if (this.state !== 'successful')
+        this.do_present_subtasks (space);
       this.present_completed = true;
       return space;
     }
@@ -30,14 +43,7 @@ export class TaskListHorizontal extends TaskList {
 
     space.add (this.label.present ());
 
-    for (const task of this.tasks) {
-      if (space.width > this.horizontal_limit) {
-        process.stderr.write ('\n  ');
-        space.width = 2;
-        space.height++;
-      }
-      space.add (task.present ());
-    }
+    this.do_present_subtasks (space);
     if (this.display_percentage) {
       const percentage = ` ${Math.round (this.progress * 100)}%`;
       process.stderr.write (percentage);

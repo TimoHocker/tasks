@@ -3,7 +3,6 @@
 import chalk, { Chalk } from 'chalk';
 import { LogEntry, LogEntrySettings } from './Logging';
 import { Task } from './Task';
-import { TaskHorizontal } from './TaskHorizontal';
 import { TaskListHorizontal } from './TaskListHorizontal';
 import { TaskListVertical } from './TaskListVertical';
 import { TaskSchedule, TaskScheduleSettings } from './TaskSchedule';
@@ -33,8 +32,8 @@ export class ScheduleExceptionError extends ScheduleError {
 
 export class TaskScheduler {
   private _queue: TaskSchedule[] = [];
+  private _running: TaskSchedule[] = [];
   private _completed: string[] = [];
-  private _running: string[] = [];
   private _failed: string[] = [];
   private _promises: Promise<void>[] = [];
   private _task_list: TaskListVertical | null = null;
@@ -61,7 +60,7 @@ export class TaskScheduler {
   }
 
   public get running (): string[] {
-    return [ ...this._running ];
+    return this._running.map ((v) => v.id);
   }
 
   public get failed (): string[] {
@@ -148,7 +147,15 @@ export class TaskScheduler {
 
     this._task_list.update ();
 
-    while (this._queue.length > 0) {
+    const abort_controller = new AbortController;
+    abort_controller.signal.addEventListener ('abort', () => {
+      for (const schedule of this._running)
+        schedule.abort_controller.abort ();
+      for (const schedule of this._queue)
+        schedule.abort_controller.abort ();
+    });
+
+    while (this._queue.length > 0 && !abort_controller.signal.aborted) {
       let startable: TaskSchedule | null = null;
       let waiting = false;
       for (let i = this._queue.length - 1; i >= 0; i--) {
@@ -174,6 +181,7 @@ export class TaskScheduler {
           if (failed.length > 0) {
             this._failed.push (schedule.id);
             this._queue.splice (i, 1);
+            schedule.task.state = 'skipped';
             this.on_failure (
               schedule.id,
               new ScheduleDependencyError (failed)
@@ -190,36 +198,29 @@ export class TaskScheduler {
         continue;
       }
 
-      this._running.push (startable.id);
+      this._running.push (startable);
       this._task_list.tasks.splice (
         this._task_list.tasks.length - 1,
         0,
         startable.task
       );
 
-      if (startable.progress_by_time)
-        startable.task.start_timer ();
       this._promises.push (
         (async () => {
           const color = get_color ();
-          startable.task.state = 'running';
           try {
-            await startable.task.promise (
-              startable.run (
-                () => {
-                  this._completed.push (startable.id);
-                },
-                (...messages: string[]) => this._task_list!.log ({
-                  message:     messages.join (' '),
-                  label:       startable.label,
-                  label_color: color
-                })
-              )
+            await startable.run (
+              () => {
+                this._completed.push (startable.id);
+              },
+              (...messages: string[]) => this._task_list!.log ({
+                message:     messages.join (' '),
+                label:       startable.label,
+                label_color: color
+              })
             );
           }
           catch (error) {
-            if (startable.progress_by_time)
-              await startable.task.stop_timer (false);
             this._failed.push (startable.id);
             this.on_failure (startable.id, new ScheduleExceptionError (
               `Task ${startable.id} failed`,
@@ -227,18 +228,21 @@ export class TaskScheduler {
             ));
           }
 
-          if (startable.progress_by_time)
-            await startable.task.stop_timer (true);
-          this._running.splice (this._running.indexOf (startable.id), 1);
+          this._running.splice (this._running.indexOf (startable), 1);
           if (!this._completed.includes (startable.id))
             this._completed.push (startable.id);
         }) ()
+          .catch ((error) => {
+            abort_controller.abort (error);
+          })
       );
     }
 
     await Promise.all (this._promises);
     this._promises = [];
     await this._task_list.await_end ();
+    if (abort_controller.signal.aborted)
+      throw abort_controller.signal.reason;
     this._task_list = null;
   }
 }

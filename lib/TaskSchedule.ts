@@ -48,7 +48,14 @@ export class TaskSchedule {
     this.progress_by_time = settings.progress_by_time || false;
     this.ready = settings.ready || (() => true);
     this._label = settings.label || '';
+
     this._abort_controller = new AbortController;
+    this.abort_controller.signal.addEventListener ('abort', () => {
+      if (this.task.completed)
+        return;
+      this.task.state = 'skipped';
+      this.task.completed = true;
+    });
 
     this._task = new TaskHorizontal;
     this._task.task_id = this._id;
@@ -56,16 +63,26 @@ export class TaskSchedule {
     this._task.progress_by_time = this.progress_by_time;
   }
 
-  public run (
+  public async run (
     next: () => void,
     logger: (...messages: string[]) => void
-  ): Promise<boolean | void> {
-    return Promise.resolve (this._process (
-      this.task,
-      next,
-      logger,
-      this.abort_controller.signal
-    ));
+  ): Promise<void> {
+    if (this.progress_by_time)
+      this.task.start_timer ();
+    try {
+      this.task.state = 'running';
+      await this.task.promise (Promise.resolve (this._process (
+        this.task,
+        next,
+        logger,
+        this.abort_controller.signal
+      )));
+      if (this.progress_by_time)
+        this.task.stop_timer (true);
+    }
+    finally {
+      this.task.stop_timer (false);
+    }
   }
 
   public check_dependencies (completed: string[]): boolean {
