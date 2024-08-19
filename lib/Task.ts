@@ -3,7 +3,7 @@ import { StandaloneTask } from './StandaloneTask';
 
 export class Task extends StandaloneTask {
   public form = [
-    '⠀',
+    '_',
     '⡀',
     '⣀',
     '⣄',
