@@ -58,7 +58,7 @@ export async function linear_test () {
   static_task3.label.value = 'Static Task';
   static_task3.label.length = 10;
   static_task3.length = 10;
-  static_task3.progress = 0.8;
+  static_task3.progress = 0;
   list_vertical.tasks.push (static_task3);
 
   const static_task4 = (new TaskHorizontal);
@@ -101,9 +101,18 @@ export async function linear_test () {
   static_task2.progress_by_time = true;
   static_task2.start_timer ();
 
+  static_task3.task_id = 'task3';
+  static_task3.time_by_progress = true;
+  static_task3.start_timer ();
+
+  const intv = setInterval (() => {
+    static_task3.progress = Math.min (1, static_task3.progress + 0.002);
+  }, 10);
+
   list_vertical.update ();
 
   await Promise.all (tasks);
+  clearInterval (intv);
   static_task1.completed = true;
   static_task2.completed = true;
   static_task3.completed = true;
@@ -131,6 +140,8 @@ export async function linear_test () {
   await list_vertical.await_end ();
 
   await static_task1.stop_timer (true);
+  await static_task2.stop_timer (false);
+  await static_task3.stop_timer (false);
 
   assert (static_task1.average_time > 0, 'Average time must be greater than 0');
 

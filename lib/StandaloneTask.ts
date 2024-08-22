@@ -13,6 +13,7 @@ export abstract class StandaloneTask extends BaseTask {
   private _average_time = 0;
   private _start_time = 0;
   private _progress_by_time = false;
+  private _time_by_progress = false;
   private _color: Chalk | null = null;
 
   /*  eslint-disable-next-line no-use-before-define */
@@ -35,9 +36,27 @@ export abstract class StandaloneTask extends BaseTask {
   }
 
   public set progress_by_time (value: boolean) {
+    assert (
+      !this._time_by_progress,
+      'Cannot set both progress_by_time and time_by_progress'
+    );
     this._progress_by_time = value;
     if (this.task_id.length > 0)
       this.total = Math.max (1, this.average_time);
+  }
+
+  public get time_by_progress () {
+    if (this._sync_task !== null)
+      return this._sync_task.time_by_progress;
+    return this._time_by_progress;
+  }
+
+  public set time_by_progress (value: boolean) {
+    assert (
+      !this._progress_by_time,
+      'Cannot set both progress_by_time and time_by_progress'
+    );
+    this._time_by_progress = value;
   }
 
   public set sync_task (value: StandaloneTask | null) {
@@ -112,11 +131,11 @@ export abstract class StandaloneTask extends BaseTask {
 
     if (this._start_time === 0)
       return 0;
-    if (this._average_time === 0)
+    if (this.average_time === 0)
       return 0;
 
     const time = this.elapsed_time;
-    const remaining = Math.max (0, this._average_time - time);
+    const remaining = Math.max (0, this.average_time - time);
     return remaining;
   }
 
@@ -153,7 +172,7 @@ export abstract class StandaloneTask extends BaseTask {
   public set task_id (value: string) {
     this._task_id = value;
     if (value.length > 0) {
-      this._average_time = time_store.get_avg_time (value);
+      this.average_time = time_store.get_avg_time (value);
       if (this.progress_by_time)
         this.total = Math.max (1, this.average_time);
     }
@@ -162,7 +181,17 @@ export abstract class StandaloneTask extends BaseTask {
   public get average_time (): number {
     if (this._sync_task !== null)
       return this._sync_task.average_time;
+    if (this.time_by_progress) {
+      const progress = this.progress;
+      if (progress === 0)
+        return 0;
+      return this.elapsed_time / progress;
+    }
     return this._average_time;
+  }
+
+  public set average_time (value: number) {
+    this._average_time = value;
   }
 
   public start_timer () {
@@ -184,7 +213,7 @@ export abstract class StandaloneTask extends BaseTask {
     if (save)
       await time_store.set_time (this._task_id, time);
 
-    this._average_time = time_store.get_avg_time (this._task_id);
+    this.average_time = time_store.get_avg_time (this._task_id);
     this._start_time = 0;
   }
 
