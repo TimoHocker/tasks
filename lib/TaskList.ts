@@ -23,22 +23,25 @@ export abstract class TaskList extends BaseTask {
   public get state (): TaskState {
     let skipped = true;
     let paused = true;
+    let successful = true;
     for (const task of this.tasks) {
       if (task.state !== 'skipped')
         skipped = false;
       if (task.state !== 'paused')
         paused = false;
-      if (task.state === 'failed')
-        return 'failed';
+      if (task.state !== 'successful')
+        successful = false;
     }
-    if (this.completed) {
-      if (skipped)
-        return 'skipped';
+    if (!this.completed) {
+      if (paused)
+        return 'paused';
+      return 'running';
+    }
+    if (skipped)
+      return 'skipped';
+    if (successful)
       return 'successful';
-    }
-    if (paused)
-      return 'paused';
-    return 'running';
+    return 'failed';
   }
 
   public get completed () {

@@ -44,7 +44,7 @@ export async function dynamic_test () {
       const task = uncompleted.shift ();
       assert (typeof task !== 'undefined', 'Task must be defined');
       task.completed = true;
-      task.state = 'successful';
+      task.state = Math.random () > 0.2 ? 'successful' : 'failed';
       task.progress = 1;
     }
 
@@ -76,6 +76,7 @@ export async function dynamic_test () {
     assert (typeof task !== 'undefined', 'Task must be defined');
     if (task.progress > 0.9) {
       task.completed = true;
+      task.state = Math.random () > 0.2 ? 'successful' : 'failed';
       task.progress = 1;
       list_vertical.log (`${uncompleted.length} tasks left`);
       uncompleted.shift ();
