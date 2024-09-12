@@ -190,7 +190,7 @@ export class TaskScheduler {
         }
       }
       if (startable === null) {
-        if (!waiting && this._running.length === 0)
+        if (!waiting && this._running.length === 0 && this._queue.length > 0)
           throw new Error ('Circular dependency detected');
 
         // eslint-disable-next-line no-await-in-loop
