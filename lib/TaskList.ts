@@ -9,7 +9,7 @@ export abstract class TaskList extends BaseTask {
   }
 
   public get display_name () {
-    return `list[${this.tasks.map ((v) => v.display_name)
+    return `list: ${this.completed}[${this.tasks.map ((v) => v.display_name)
       .join (' ')}]`;
   }
 
