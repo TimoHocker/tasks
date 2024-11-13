@@ -178,6 +178,10 @@ export abstract class StandaloneTask extends BaseTask {
     }
   }
 
+  public get display_name (): string {
+    return this.task_id;
+  }
+
   public get average_time (): number {
     if (this._sync_task !== null)
       return this._sync_task.average_time;

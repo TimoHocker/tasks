@@ -11,6 +11,7 @@ export interface ITask {
   total: number;
   previous_vertical_space: number;
   was_presented: boolean;
+  display_name: string;
   present(): OccupiedSpace;
 }
 

@@ -8,6 +8,11 @@ export abstract class TaskList extends BaseTask {
     return this._tasks;
   }
 
+  public get display_name () {
+    return `list[${this.tasks.map ((v) => v.display_name)
+      .join (' ')}]`;
+  }
+
   public get progress () {
     if (this.tasks.length === 0)
       return 0;
@@ -56,5 +61,9 @@ export abstract class TaskList extends BaseTask {
       this.tasks.length > 0
       && this.tasks.filter ((v) => !v.present_completed).length === 0
     );
+  }
+
+  public get incomplete_tasks () {
+    return this.tasks.filter ((v) => !v.present_completed);
   }
 }

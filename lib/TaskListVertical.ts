@@ -183,6 +183,7 @@ export class TaskListVertical extends TaskList {
           this.subtasks_present_completed
         }; interval: ${Boolean (this.interval)}`
       );
+      sublog (`tasks: ${this.incomplete_tasks.map ((t) => t.display_name)}`);
     }
   }
 }
