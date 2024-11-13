@@ -37,6 +37,7 @@ export class TaskScheduler {
   private _failed: string[] = [];
   private _promises: Promise<void>[] = [];
   private _task_list: TaskListVertical | null = null;
+  private _show_summary: boolean;
 
   public schedules: TaskSchedule[] = [];
   public label: string;
@@ -67,8 +68,9 @@ export class TaskScheduler {
     return [ ...this._failed ];
   }
 
-  public constructor (label = '') {
+  public constructor (label = '', show_summary = true) {
     this.label = label;
+    this._show_summary = show_summary;
   }
 
   public add (settings: TaskScheduleSettings) {
@@ -110,7 +112,7 @@ export class TaskScheduler {
     }
   }
 
-  // eslint-disable-next-line max-lines-per-function, max-statements
+  // eslint-disable-next-line max-lines-per-function, max-statements, complexity
   public async run (): Promise<void> {
     this.validate_dependencies ();
 
@@ -123,6 +125,9 @@ export class TaskScheduler {
     this._task_list = (new TaskListVertical);
     this._task_list.clear_completed = true;
 
+    if (!this._task_list.isTTY)
+      this._show_summary = false;
+
     let color_index = 0;
     const get_color = () => {
       const color = this.colors[color_index];
@@ -130,7 +135,7 @@ export class TaskScheduler {
       return color;
     };
 
-    if (this._task_list.isTTY) {
+    if (this._show_summary) {
       const summary = (new TaskListHorizontal);
       this._task_list.tasks.push (summary);
       summary.label.value = this.label;
@@ -201,11 +206,16 @@ export class TaskScheduler {
       }
 
       this._running.push (startable);
-      this._task_list.tasks.splice (
-        this._task_list.tasks.length - 1,
-        0,
-        startable.task
-      );
+      if (this._show_summary) {
+        this._task_list.tasks.splice (
+          this._task_list.tasks.length - 1,
+          0,
+          startable.task
+        );
+      }
+      else {
+        this._task_list.tasks.push (startable.task);
+      }
 
       this._promises.push (
         (async () => {
