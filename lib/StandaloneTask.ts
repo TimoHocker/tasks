@@ -179,7 +179,7 @@ export abstract class StandaloneTask extends BaseTask {
   }
 
   public get display_name (): string {
-    return this.task_id + ': ' + this.completed;
+    return `${this.task_id}: ${this.completed}`;
   }
 
   public get average_time (): number {
