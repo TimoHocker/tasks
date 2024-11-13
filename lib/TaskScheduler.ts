@@ -130,19 +130,21 @@ export class TaskScheduler {
       return color;
     };
 
-    const summary = (new TaskListHorizontal);
-    this._task_list.tasks.push (summary);
-    summary.label.value = this.label;
-    summary.label.length = this.label.length;
+    if (this._task_list.isTTY) {
+      const summary = (new TaskListHorizontal);
+      this._task_list.tasks.push (summary);
+      summary.label.value = this.label;
+      summary.label.length = this.label.length;
 
-    const summary_tasks: Record<string, Task> = {};
+      const summary_tasks: Record<string, Task> = {};
 
-    for (const schedule of this.schedules) {
-      const task = (new Task);
-      summary.tasks.push (task);
-      summary_tasks[schedule.id] = task;
-      task.sync_task = schedule.task;
-      schedule.task.state = 'paused';
+      for (const schedule of this.schedules) {
+        const task = (new Task);
+        summary.tasks.push (task);
+        summary_tasks[schedule.id] = task;
+        task.sync_task = schedule.task;
+        schedule.task.state = 'paused';
+      }
     }
 
     this._task_list.update ();
