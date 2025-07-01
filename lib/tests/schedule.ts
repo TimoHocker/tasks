@@ -35,12 +35,12 @@ export async function run_schedule () {
     });
   }
   scheduler.schedules[0].dependencies = [
-    'test_1',
-    'test_5'
+    'tEsT_1',
+    'TEST_5'
   ];
   scheduler.schedules[1].dependencies = [
     'test_2',
-    'test_3'
+    'tEst_3'
   ];
   scheduler.schedules[2].dependencies = [ 'test_4' ];
   await scheduler.run ();
