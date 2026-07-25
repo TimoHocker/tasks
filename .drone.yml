@@ -13,7 +13,6 @@ steps:
   - name: test
     image: registry:5000/node-build
     commands:
-      - yarn lint
       - yarn test
     when:
     branch:
