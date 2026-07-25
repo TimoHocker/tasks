@@ -29,7 +29,7 @@ steps:
   - name: publish
     image: registry:5000/node-build
     commands:
-      - yarn npm publish --access public
+      - yarn publish --access public
     when:
     branch:
     - master
