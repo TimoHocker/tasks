@@ -1,6 +1,6 @@
 import assert from 'assert';
 import debug from 'debug';
-import { Chalk } from 'chalk';
+import { type ChalkInstance } from 'chalk';
 import { BaseTask } from './BaseTask';
 import { OccupiedSpace } from './Space';
 import { color_by_state, TaskState } from './State';
@@ -14,18 +14,18 @@ export abstract class StandaloneTask extends BaseTask {
   private _start_time = 0;
   private _progress_by_time = false;
   private _time_by_progress = false;
-  private _color: Chalk | null = null;
+  private _color: ChalkInstance | null = null;
 
   /*  eslint-disable-next-line no-use-before-define */
   private _sync_task: StandaloneTask | null = null;
 
-  public get color (): Chalk {
+  public get color (): ChalkInstance {
     if (this._sync_task !== null)
       return this._sync_task.color;
     return this._color || color_by_state (this.state);
   }
 
-  public set color (value: Chalk | null) {
+  public set color (value: ChalkInstance | null) {
     this._color = value;
   }
 

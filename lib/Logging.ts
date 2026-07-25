@@ -1,19 +1,19 @@
-import chalk, { Chalk } from 'chalk';
+import chalk, { type ChalkInstance } from 'chalk';
 
 export interface LogEntrySettings {
   message: string;
-  message_color?: Chalk;
+  message_color?: ChalkInstance;
   label?: string;
-  label_color?: Chalk;
+  label_color?: ChalkInstance;
 }
 
 export type Logger = (message: LogEntrySettings | string) => void;
 
 export class LogEntry {
   public message: string;
-  public message_color: Chalk;
+  public message_color: ChalkInstance;
   public label: string;
-  public label_color: Chalk;
+  public label_color: ChalkInstance;
 
   constructor (settings: LogEntrySettings) {
     this.message = settings.message;

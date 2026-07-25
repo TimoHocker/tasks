@@ -1,6 +1,6 @@
 /* eslint-disable-next-line max-len */
 /* eslint-disable max-classes-per-file, @typescript-eslint/no-non-null-assertion */
-import chalk, { Chalk } from 'chalk';
+import chalk, { type ChalkInstance } from 'chalk';
 import { LogEntry, LogEntrySettings } from './Logging';
 import { Task } from './Task';
 import { TaskListHorizontal } from './TaskListHorizontal';
@@ -42,7 +42,7 @@ export class TaskScheduler {
   public schedules: TaskSchedule[] = [];
   public label: string;
   public max_parallel = 16;
-  public colors: Chalk[] = [
+  public colors: ChalkInstance[] = [
     chalk.red,
     chalk.green,
     chalk.yellow,

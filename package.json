@@ -8,21 +8,18 @@
   },
   "license": "MIT",
   "scripts": {
-    "lint": "eslint . --ext .js,.jsx,.ts,.tsx,.vue,.mjs",
     "test": "node dist/tests/index.js",
     "compile": "tsc",
     "pretest": "tsc",
     "posttest": "tsc --build --clean"
   },
   "devDependencies": {
-    "@sapphirecode/eslint-config-ts": "^1.2.2",
     "@types/debug": "^4.1.12",
-    "@types/node": "^20.10.4",
-    "eslint": "^8.55.0",
-    "typescript": "^5.3.3"
+    "@types/node": "^26.1.1",
+    "typescript": "^7.0.2"
   },
   "dependencies": {
-    "chalk": "4",
+    "chalk": "^5.6.2",
     "debug": "^4.3.6"
   },
   "engines": {
