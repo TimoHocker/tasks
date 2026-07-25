@@ -29,7 +29,7 @@ steps:
   - name: publish
     image: registry:5000/node-build
     commands:
-      - yarn publish --access public
+      - yarn publish --access public --registry https://registry.npmjs.org
     when:
     branch:
     - master
